@@ -58,8 +58,8 @@ export const EnpsDistributionChart: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // Chart dimensions
-  const chartWidth = 480;
+  // Chart dimensions (width from theme, height flexible for content)
+  const chartWidth = theme.chart.width;
   const chartHeight = 220;
   const padding = { top: 20, right: 20, bottom: 50, left: 40 };
   const barWidth = 24;
@@ -89,11 +89,11 @@ export const EnpsDistributionChart: React.FC = () => {
       {/* Title */}
       <div
         style={{
-          fontFamily: theme.typography.fontFamily.heading,
-          fontSize: theme.typography.size.body + 2,
-          fontWeight: theme.typography.weight.semibold,
-          color: theme.colors.text.default,
-          marginBottom: 12,
+          fontFamily: theme.chart.title.fontFamily,
+          fontSize: theme.chart.title.fontSize,
+          fontWeight: theme.chart.title.fontWeight,
+          color: theme.chart.title.color,
+          marginBottom: theme.chart.title.marginBottom,
         }}
       >
         eNPS Distribution
@@ -103,40 +103,42 @@ export const EnpsDistributionChart: React.FC = () => {
       <div
         style={{
           display: "flex",
-          gap: 20,
-          marginBottom: 16,
-          fontSize: theme.typography.size.small,
-          color: theme.colors.text.secondary,
+          gap: theme.chart.legend.horizontalGap,
+          marginBottom: theme.chart.title.marginBottom,
+          fontFamily: theme.chart.legend.fontFamily,
+          fontSize: theme.chart.legend.fontSize,
+          fontWeight: theme.chart.legend.fontWeight,
+          color: theme.chart.legend.color,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: theme.chart.legend.itemGap }}>
           <div
             style={{
-              width: 12,
-              height: 12,
-              borderRadius: 3,
+              width: theme.chart.legend.indicator.square.width,
+              height: theme.chart.legend.indicator.square.height,
+              borderRadius: theme.chart.legend.indicator.square.borderRadius,
               backgroundColor: colors.promoters,
             }}
           />
           <span>Promoters (9-10) {promotersPct}%</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: theme.chart.legend.itemGap }}>
           <div
             style={{
-              width: 12,
-              height: 12,
-              borderRadius: 3,
+              width: theme.chart.legend.indicator.square.width,
+              height: theme.chart.legend.indicator.square.height,
+              borderRadius: theme.chart.legend.indicator.square.borderRadius,
               backgroundColor: colors.passives,
             }}
           />
           <span>Passives (7-8) {passivesPct}%</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: theme.chart.legend.itemGap }}>
           <div
             style={{
-              width: 12,
-              height: 12,
-              borderRadius: 3,
+              width: theme.chart.legend.indicator.square.width,
+              height: theme.chart.legend.indicator.square.height,
+              borderRadius: theme.chart.legend.indicator.square.borderRadius,
               backgroundColor: colors.detractors,
             }}
           />
@@ -227,9 +229,9 @@ export const EnpsDistributionChart: React.FC = () => {
               x={x}
               y={chartHeight - padding.bottom + 20}
               textAnchor="middle"
-              fontSize={theme.typography.size.small}
-              fontFamily={theme.typography.fontFamily.body}
-              fill={theme.colors.text.secondary}
+              fontSize={theme.chart.axisLabel.fontSize}
+              fontFamily={theme.chart.axisLabel.fontFamily}
+              fill={theme.chart.axisLabel.color}
             >
               {d.score}
             </text>

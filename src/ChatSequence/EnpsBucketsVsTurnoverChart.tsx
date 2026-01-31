@@ -174,9 +174,10 @@ export const EnpsBucketsVsTurnoverChart: React.FC = () => {
       {/* Title */}
       <div
         style={{
-          fontSize: theme.typography.size.body + 2,
-          fontWeight: theme.typography.weight.semibold,
-          color: theme.colors.text.default,
+          fontFamily: theme.chart.title.fontFamily,
+          fontSize: theme.chart.title.fontSize,
+          fontWeight: theme.chart.title.fontWeight,
+          color: theme.chart.title.color,
           marginBottom: 6,
         }}
       >
@@ -200,19 +201,21 @@ export const EnpsBucketsVsTurnoverChart: React.FC = () => {
         style={{
           display: "flex",
           flexWrap: "wrap",
-          gap: "8px 16px",
+          gap: `${theme.chart.legend.gap}px ${theme.chart.legend.horizontalGap}px`,
           marginBottom: 12,
-          fontSize: 11,
-          color: theme.colors.text.secondary,
+          fontFamily: theme.chart.legend.fontFamily,
+          fontSize: theme.chart.compact.legend.fontSize,
+          fontWeight: theme.chart.legend.fontWeight,
+          color: theme.chart.legend.color,
         }}
       >
         {(["s10", "s9", "s8", "s7", "s6"] as const).map((key) => (
-          <div key={key} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <div key={key} style={{ display: "flex", alignItems: "center", gap: theme.chart.compact.legend.itemGap }}>
             <div
               style={{
-                width: 14,
-                height: 3,
-                borderRadius: 2,
+                width: theme.chart.compact.legend.indicator.pill.width,
+                height: theme.chart.compact.legend.indicator.pill.height,
+                borderRadius: theme.chart.legend.indicator.pill.borderRadius,
                 backgroundColor: lineColors[key],
               }}
             />
@@ -259,8 +262,9 @@ export const EnpsBucketsVsTurnoverChart: React.FC = () => {
               x={xScale(i)}
               y={topChartHeight - 5}
               textAnchor="middle"
-              fontSize={10}
-              fill={theme.colors.text.secondary}
+              fontFamily={theme.chart.axisLabel.fontFamily}
+              fontSize={theme.chart.compact.axisLabel.fontSize}
+              fill={theme.chart.axisLabel.color}
             >
               {d.month}
             </text>
@@ -282,29 +286,31 @@ export const EnpsBucketsVsTurnoverChart: React.FC = () => {
       <div
         style={{
           display: "flex",
-          gap: 16,
+          gap: theme.chart.legend.horizontalGap,
           marginBottom: 8,
-          fontSize: 11,
-          color: theme.colors.text.secondary,
+          fontFamily: theme.chart.legend.fontFamily,
+          fontSize: theme.chart.compact.legend.fontSize,
+          fontWeight: theme.chart.legend.fontWeight,
+          color: theme.chart.legend.color,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: theme.chart.compact.legend.itemGap }}>
           <div
             style={{
-              width: 14,
-              height: 3,
-              borderRadius: 2,
+              width: theme.chart.compact.legend.indicator.pill.width,
+              height: theme.chart.compact.legend.indicator.pill.height,
+              borderRadius: theme.chart.legend.indicator.pill.borderRadius,
               backgroundColor: turnoverColors.joiners,
             }}
           />
           <span>Joiners</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: theme.chart.compact.legend.itemGap }}>
           <div
             style={{
-              width: 14,
-              height: 3,
-              borderRadius: 2,
+              width: theme.chart.compact.legend.indicator.pill.width,
+              height: theme.chart.compact.legend.indicator.pill.height,
+              borderRadius: theme.chart.legend.indicator.pill.borderRadius,
               backgroundColor: turnoverColors.leavers,
             }}
           />
@@ -355,8 +361,9 @@ export const EnpsBucketsVsTurnoverChart: React.FC = () => {
               x={xScale(i)}
               y={bottomChartHeight - 3}
               textAnchor="middle"
-              fontSize={10}
-              fill={theme.colors.text.secondary}
+              fontFamily={theme.chart.axisLabel.fontFamily}
+              fontSize={theme.chart.compact.axisLabel.fontSize}
+              fill={theme.chart.axisLabel.color}
             >
               {d.month}
             </text>

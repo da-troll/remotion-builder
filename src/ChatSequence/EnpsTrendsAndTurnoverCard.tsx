@@ -51,8 +51,8 @@ export const EnpsTrendsAndTurnoverCard: React.FC = () => {
     config: { mass: 1, damping: 18, stiffness: 60 },
   });
 
-  // Chart dimensions
-  const chartWidth = 480;
+  // Chart dimensions (width from theme, height flexible for content)
+  const chartWidth = theme.chart.width;
   const chartHeight = 140;
   const padding = { top: 10, right: 20, bottom: 25, left: 30 };
   const innerWidth = chartWidth - padding.left - padding.right;
@@ -98,14 +98,15 @@ export const EnpsTrendsAndTurnoverCard: React.FC = () => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
-            marginBottom: 16,
+            marginBottom: theme.chart.title.marginBottom,
           }}
         >
           <h3
             style={{
-              fontSize: 18,
-              fontWeight: theme.typography.weight.regular,
-              color: theme.colors.text.secondary,
+              fontFamily: theme.chart.title.fontFamily,
+              fontSize: theme.chart.title.fontSize,
+              fontWeight: theme.chart.title.fontWeight,
+              color: theme.chart.title.color,
               margin: 0,
             }}
           >
@@ -113,40 +114,42 @@ export const EnpsTrendsAndTurnoverCard: React.FC = () => {
           </h3>
 
           {/* Legend - Vertical Stack to match other charts */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: theme.chart.legend.gap }}>
+            <div style={{ display: "flex", alignItems: "center", gap: theme.chart.legend.itemGap }}>
               <div
                 style={{
-                  width: 16,
-                  height: 4,
-                  borderRadius: 4,
+                  width: theme.chart.legend.indicator.pill.width,
+                  height: theme.chart.legend.indicator.pill.height,
+                  borderRadius: theme.chart.legend.indicator.pill.borderRadius,
                   backgroundColor: theme.colors.brand.primary,
                 }}
               />
               <span
                 style={{
-                  fontSize: 12,
-                  color: theme.colors.text.secondary,
-                  fontWeight: theme.typography.weight.medium,
+                  fontFamily: theme.chart.legend.fontFamily,
+                  fontSize: theme.chart.legend.fontSize,
+                  fontWeight: theme.chart.legend.fontWeight,
+                  color: theme.chart.legend.color,
                 }}
               >
                 9–10s
               </span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: theme.chart.legend.itemGap }}>
               <div
                 style={{
-                  width: 16,
-                  height: 4,
-                  borderRadius: 4,
+                  width: theme.chart.legend.indicator.pill.width,
+                  height: theme.chart.legend.indicator.pill.height,
+                  borderRadius: theme.chart.legend.indicator.pill.borderRadius,
                   backgroundColor: theme.colors.charts.orange,
                 }}
               />
               <span
                 style={{
-                  fontSize: 12,
-                  color: theme.colors.text.secondary,
-                  fontWeight: theme.typography.weight.medium,
+                  fontFamily: theme.chart.legend.fontFamily,
+                  fontSize: theme.chart.legend.fontSize,
+                  fontWeight: theme.chart.legend.fontWeight,
+                  color: theme.chart.legend.color,
                 }}
               >
                 6–7s
@@ -197,8 +200,9 @@ export const EnpsTrendsAndTurnoverCard: React.FC = () => {
               x={xScale(idx)}
               y={chartHeight - 5}
               textAnchor="middle"
-              fontSize={12}
-              fill={theme.colors.text.secondary}
+              fontFamily={theme.chart.axisLabel.fontFamily}
+              fontSize={theme.chart.axisLabel.fontSize}
+              fill={theme.chart.axisLabel.color}
             >
               {data[idx].month}
             </text>

@@ -77,6 +77,87 @@ export const theme = {
       elevated: "0 4px 12px rgba(0, 0, 0, 0.08)",
     },
   },
+  // Chart styling tokens - ensures consistency across all chart components
+  chart: {
+    // Chart title styling
+    title: {
+      fontFamily: "Inter", // matches typography.fontFamily.heading
+      fontSize: 18,
+      fontWeight: 400, // regular - clean, not too bold
+      color: "#706e78", // text.secondary
+      marginBottom: 16,
+    },
+    // Axis labels (x-axis, y-axis)
+    axisLabel: {
+      fontFamily: "Inter", // matches typography.fontFamily.body
+      fontSize: 12,
+      fontWeight: 400,
+      color: "#706e78", // text.secondary
+    },
+    // Legend text styling
+    legend: {
+      fontFamily: "Inter",
+      fontSize: 12,
+      fontWeight: 500, // medium - slightly emphasized
+      color: "#706e78", // text.secondary
+      gap: 6, // gap between legend items (vertical)
+      horizontalGap: 20, // gap between legend items (horizontal layout)
+      itemGap: 8, // gap between indicator and text
+      // Legend indicator variants
+      indicator: {
+        // Pill shape - for line charts
+        pill: {
+          width: 16,
+          height: 4,
+          borderRadius: 4,
+        },
+        // Square shape - for bar charts
+        square: {
+          width: 12,
+          height: 12,
+          borderRadius: 3,
+        },
+      },
+    },
+    // Chart dimensions
+    width: 480, // Overall card/component width
+    contentWidth: 480, // Width of the chart/graph content (SVG area)
+    contentHeight: 220, // Default height for chart content
+    // Compact variants (for embedded/smaller charts)
+    compact: {
+      title: {
+        fontSize: 14,
+        marginBottom: 8,
+      },
+      axisLabel: {
+        fontSize: 10,
+      },
+      legend: {
+        fontSize: 10,
+        gap: 12, // horizontal gap when compact
+        itemGap: 4,
+        indicator: {
+          pill: {
+            width: 12,
+            height: 3,
+          },
+          square: {
+            width: 10,
+            height: 10,
+            borderRadius: 2,
+          },
+        },
+      },
+      width: 400,
+      contentWidth: 400,
+      contentHeight: 160,
+    },
+    // Card container styling
+    card: {
+      padding: "24px 24px 32px 24px",
+      // backgroundColor, borderRadius, boxShadow use layout tokens
+    },
+  },
   // Animation timing constants (in frames at 60fps)
   timing: {
     // Message delays by category
