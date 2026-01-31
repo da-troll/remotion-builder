@@ -90,6 +90,9 @@ _old/
 _archive/
 _backup/
 
+# Compositions (project-specific, not shared)
+src/compositions/
+
 # Personal notes
 notes.md
 TODO.md
