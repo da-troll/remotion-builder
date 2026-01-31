@@ -20,7 +20,18 @@ npx remotion render ChatSequence-Long --output=out/video.mp4  # Example render
 
 ### Entry Points
 - `src/index.ts` - Registers the root component using `registerRoot()`
-- `src/Root.tsx` - Defines all compositions and timing calculations
+- `src/Root.tsx` - Minimal entry that imports all compositions
+- `src/compositions/` - All composition definitions (see below)
+
+### Compositions (`src/compositions/`)
+
+| File | Purpose |
+|------|---------|
+| `index.tsx` | Exports `AllCompositions` component |
+| `timing.ts` | Delay calculations (`shortDelays`, `longDelays`, etc.) |
+| `messages.ts` | Shared message arrays for all compositions |
+| `ChatDemoCompositions.tsx` | ChatDemo variant compositions |
+| `ChatSequenceCompositions.tsx` | ChatSequence compositions with desktop/mobile helper |
 
 ### Core Components
 
@@ -34,6 +45,7 @@ npx remotion render ChatSequence-Long --output=out/video.mp4  # Example render
 - `JoinersLeaversChart.tsx` - Turnover line chart (Joiners vs Leavers)
 - `EnpsDistributionChart.tsx` - eNPS score distribution bar chart
 - `EnpsTrendsAndTurnoverCard.tsx` - Combined eNPS trends + turnover correlation card
+- `chartUtils.ts` - Shared utilities: `generateSmoothPath()`, `mixHexColors()`
 
 **ChatDemo** (`src/ChatDemo/`)
 - Alternative chat demo format with different message types
@@ -45,7 +57,8 @@ npx remotion render ChatSequence-Long --output=out/video.mp4  # Example render
 - Colors: brand, text, surface, charts, status
 - Typography: font families, sizes, weights
 - Layout: border radius, gaps, shadows
-- **Timing constants** (see below)
+- Chart styling: `theme.chart.*` (see below)
+- Timing constants (see below)
 
 **Fonts** (`src/fonts.ts`)
 - Inter (body/heading)
@@ -53,7 +66,7 @@ npx remotion render ChatSequence-Long --output=out/video.mp4  # Example render
 
 ## Timing System (60fps)
 
-All timing is centralized in `src/theme.ts` under `theme.timing`. This enables easy tweaking and template creation.
+All timing is centralized in `src/theme.ts` under `theme.timing`. Pre-calculated delays are in `src/compositions/timing.ts`.
 
 ### Delay Categories
 
@@ -82,13 +95,42 @@ import { getAiChartToUserDelay } from "./theme";
 const delay = getAiChartToUserDelay(4); // 684 frames for 4 thinking steps
 ```
 
-### Pre-calculated Delays in Root.tsx
+### Pre-calculated Delays
+
+Located in `src/compositions/timing.ts`:
 
 ```typescript
-const shortDelays = { msg1, msg2, msg3, msg4, msg5, msg6 };
-const longDelays = { ...shortDelays, msg7, msg8 };
-const multiTurnDelays = { msg1, msg2, msg3, msg4 };
-const chartDelays = { msg1, msg2 };
+import { shortDelays, longDelays, multiTurnDelays, chartDelays } from "./timing";
+```
+
+## Chart Styling (`theme.chart`)
+
+| Token Path | Value | Usage |
+|------------|-------|-------|
+| `chart.line.strokeWidth` | 4 | Primary line thickness |
+| `chart.line.strokeWidthSecondary` | 2.5 | Dense multi-line charts |
+| `chart.line.tension` | 0.3 | Bezier curve smoothness |
+| `chart.line.padding` | `{top:10,right:20,bottom:25,left:30}` | Chart content padding |
+| `chart.line.labelOffset` | 5 | Distance to x-axis labels |
+| `chart.title.fontSize` | 18 | Chart title size |
+| `chart.legend.indicator.pill` | `{width:16,height:4}` | Line chart legend |
+| `chart.legend.indicator.square` | `{width:12,height:12}` | Bar chart legend |
+
+Use `theme.chart.compact.*` variants for embedded/smaller charts.
+
+### Line Chart Pattern
+
+```typescript
+import { generateSmoothPath } from "./chartUtils";
+
+const points = data.map((d, i) => ({ x: xScale(i), y: yScale(d.value) }));
+const path = generateSmoothPath(points); // Uses theme.chart.line.tension
+
+<path
+  d={path}
+  strokeWidth={theme.chart.line.strokeWidth}
+  strokeDashoffset={interpolate(progress, [0, 1], [pathLength, 0])}
+/>
 ```
 
 ## Available Compositions
@@ -101,7 +143,10 @@ const chartDelays = { msg1, msg2 };
 | `ChatSequence-Long-Mobile` | Mobile version of Long | 2700 frames | 1080×1226 |
 | `ChatSequence-MultiTurn` | Text-only multi-turn conversation | 900 frames | 1920×1080 |
 | `ChatSequence-Chart` | Single chart response demo | 800 frames | 1920×1080 |
-| `ChatDemo-*` | Alternative chat demo variants | varies | 1920×1080 |
+| `Athena-ChatDemo-Ask` | Q&A with search response | 300 frames | 1920×1080 |
+| `Athena-ChatDemo-Assign` | Task assignment demo | 300 frames | 1920×1080 |
+| `Athena-ChatDemo-Action` | Action card demo | 240 frames | 1920×1080 |
+| `ChatSequence-Chart-BarExample` | Chart with bar graph | 360 frames | 1920×1080 |
 
 ## Chart Types
 
@@ -140,10 +185,31 @@ spring()              // Physics-based animations
 
 ## Creating New Compositions
 
-1. Define timing using `theme.timing.delays` constants
-2. Calculate cumulative delays for each message
-3. Add `<Composition>` in `Root.tsx` with proper schema
-4. Use existing message types and chart components
+### Adding a ChatSequence composition
+
+1. Add message array to `src/compositions/messages.ts`
+2. Add delays to `src/compositions/timing.ts` if needed
+3. Add composition in `src/compositions/ChatSequenceCompositions.tsx`:
+   - Use `createCompositionPair()` for desktop + mobile variants
+   - Or add a single `<Composition>` for desktop-only
+
+### Adding a ChatDemo composition
+
+1. Add message array to `src/compositions/messages.ts`
+2. Add `<Composition>` in `src/compositions/ChatDemoCompositions.tsx`
+
+### Desktop + Mobile Helper
+
+```typescript
+// In ChatSequenceCompositions.tsx
+createCompositionPair({
+  id: "MyComposition",
+  durationInFrames: 1000,
+  messages: myMessages,
+  logoPosition: "bottom-left",
+  includeMobile: true,  // Generates MyComposition + MyComposition-Mobile
+});
+```
 
 ## Rendering
 
@@ -161,7 +227,9 @@ npx remotion render ChatSequence-Long --width=3840 --height=2160
 ## Best Practices
 
 - Use `theme.timing` constants instead of hardcoded frame values
-- Charts use smooth Bezier curves for "marketing smoothness"
+- Use `theme.chart.line.*` tokens for consistent line chart styling
+- Use `generateSmoothPath()` from `chartUtils.ts` for bezier curves
+- Add shared messages to `messages.ts` to avoid duplication
+- Use `createCompositionPair()` for compositions that need mobile variants
 - Message bubbles animate with springs for natural feel
-- Thinking states use shimmer effect with gradient text
 - Always test at 60fps for smooth playback
