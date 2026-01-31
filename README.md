@@ -28,18 +28,34 @@ npm run lint
 
 ```
 src/
-├── Root.tsx              # Composition definitions with timing configurations
-├── theme.ts              # Design system tokens (colors, typography, timing, chart styling)
-├── fonts.ts              # Font configuration
-├── index.ts              # Entry point
-├── index.css             # Global styles (TailwindCSS v4)
-└── ChatSequence/
-    ├── ChatSequence.tsx          # Main chat container component
-    ├── MessageBubble.tsx         # Animated message bubble with typing effect
-    ├── chartUtils.ts             # Shared chart utilities (path generation, color mixing)
-    ├── EnpsTrendsAndTurnoverCard.tsx  # Combined eNPS + Turnover charts
-    ├── JoinersLeaversChart.tsx   # Animated line chart for turnover
-    └── BrandLogo.tsx             # Avatar/logo component
+├── index.ts                 # Entry point (registerRoot)
+├── Root.tsx                 # Minimal root - imports AllCompositions
+├── theme.ts                 # Design tokens (colors, typography, timing, charts)
+├── fonts.ts                 # Font configuration
+├── index.css                # Global styles (TailwindCSS v4)
+│
+├── compositions/            # All composition definitions
+│   ├── index.tsx            # Exports AllCompositions component
+│   ├── timing.ts            # Pre-calculated delay values
+│   ├── messages.ts          # Shared message arrays
+│   ├── ChatDemoCompositions.tsx      # ChatDemo variants
+│   └── ChatSequenceCompositions.tsx  # ChatSequence variants (with desktop/mobile helper)
+│
+├── ChatSequence/            # Main chat interface components
+│   ├── ChatSequence.tsx     # Container component
+│   ├── MessageBubble.tsx    # Animated message bubble
+│   ├── schema.ts            # Zod schemas
+│   ├── chartUtils.ts        # Shared chart utilities
+│   ├── BrandLogo.tsx        # Avatar/logo component
+│   ├── JoinersLeaversChart.tsx
+│   ├── EnpsDistributionChart.tsx
+│   ├── EnpsTrendsAndTurnoverCard.tsx
+│   └── EnpsBucketsVsTurnoverChart.tsx
+│
+└── ChatDemo/                # Alternative chat demo format
+    ├── index.ts
+    ├── ChatDemo.tsx
+    └── schema.ts
 ```
 
 ## Component Reference
@@ -103,16 +119,25 @@ The flow: `chartType` in message config → `ChatSequence.getChartWidget()` conv
 
 ## Available Compositions
 
-| Composition ID | Description | Duration (frames @ 60fps) |
-|----------------|-------------|---------------------------|
-| `ChatSequence-Short` | 6-message demo with chart | 1800 |
-| `ChatSequence-Short-Light` | Light theme variant | 1800 |
-| `ChatSequence-Long` | 8-message extended demo | 2700 |
-| `ChatSequence-Long-Light` | Light theme variant | 2700 |
-| `ChatSequence-MultiTurn` | Multi-turn conversation | 2700 |
-| `ChatSequence-MultiTurn-Light` | Light theme variant | 2700 |
-| `ChatSequence-ChartOnly` | Chart-focused demo | 2700 |
-| `ChatSequence-ChartOnly-Light` | Light theme variant | 2700 |
+### ChatSequence Compositions (60fps)
+
+| Composition ID | Description | Duration | Dimensions |
+|----------------|-------------|----------|------------|
+| `ChatSequence-Short` | 6-message chat ending at eNPS distribution | 1900 frames | 1920×1080 |
+| `ChatSequence-Short-Mobile` | Mobile version of Short | 1900 frames | 1080×1226 |
+| `ChatSequence-Long` | 8-message chat with correlation analysis | 2700 frames | 1920×1080 |
+| `ChatSequence-Long-Mobile` | Mobile version of Long | 2700 frames | 1080×1226 |
+| `ChatSequence-MultiTurn` | Text-only multi-turn conversation | 900 frames | 1920×1080 |
+| `ChatSequence-Chart` | Single chart response demo | 800 frames | 1920×1080 |
+
+### ChatDemo Compositions (30fps)
+
+| Composition ID | Description | Duration | Dimensions |
+|----------------|-------------|----------|------------|
+| `Athena-ChatDemo-Ask` | Q&A with search response | 300 frames | 1920×1080 |
+| `Athena-ChatDemo-Assign` | Task assignment demo | 300 frames | 1920×1080 |
+| `Athena-ChatDemo-Action` | Action card demo | 240 frames | 1920×1080 |
+| `ChatSequence-Chart-BarExample` | Chart with bar graph | 360 frames | 1920×1080 |
 
 ## Configuration
 
@@ -228,57 +253,121 @@ import { getAiChartToUserDelay } from "./theme";
 const delay = getAiChartToUserDelay(4); // Returns 684 frames
 ```
 
-## Creating New Videos
+#### Pre-calculated Delays
 
-### 1. Define Message Content
-
-In `src/Root.tsx`, create your messages array:
+Located in `src/compositions/timing.ts`:
 
 ```typescript
-const myMessages = [
-  { text: "User question here", isAi: false },
-  { text: "AI response here", isAi: true },
+import { shortDelays, longDelays, multiTurnDelays, chartDelays } from "./compositions/timing";
+
+// shortDelays: { msg1, msg2, msg3, msg4, msg5, msg6 }
+// longDelays:  { ...shortDelays, msg7, msg8 }
+// multiTurnDelays: { msg1, msg2, msg3, msg4 }
+// chartDelays: { msg1, msg2 }
+```
+
+## Creating New Videos
+
+### Adding a ChatSequence Composition
+
+#### Step 1: Add messages to `src/compositions/messages.ts`
+
+```typescript
+// Add new message array
+export const myNewMessages: ChatMessage[] = [
+  {
+    text: "User question here",
+    isAi: false,
+    delay: myDelays.msg1,
+    userName: "Alex",
+  },
+  {
+    text: "AI response here",
+    isAi: true,
+    delay: myDelays.msg2,
+  },
   {
     isAi: true,
-    reasoningSteps: ["Analyzing data...", "Finding patterns...", "Generating chart..."],
-    chartWidget: <MyChartComponent />,
+    delay: myDelays.msg3,
+    reasoningSteps: ["Analyzing data...", "Building chart..."],
+    chartType: "enps-distribution",
   },
 ];
 ```
 
-### 2. Calculate Delays
-
-Use the timing system to calculate message delays:
+#### Step 2: Add delays to `src/compositions/timing.ts` (if needed)
 
 ```typescript
-const t = theme.timing.delays;
-
-const delays = {
-  msg1: t.start,
-  msg2: t.start + t.userToAiText,
-  msg3: delays.msg2 + t.aiTextToUser,
-  msg4: delays.msg3 + t.userToAiThinking,
-  msg5: delays.msg4 + getAiChartToUserDelay(3), // 3 thinking steps
+export const myDelays = {
+  msg1: calcDelays.start,
+  msg2: calcDelays.start + t.userToAiText,
+  msg3: calcDelays.start + t.userToAiText + t.aiTextToUser + t.userToAiThinking,
 };
 ```
 
-### 3. Create Composition
+#### Step 3: Add composition in `src/compositions/ChatSequenceCompositions.tsx`
 
-Add to `src/Root.tsx`:
+**For desktop only:**
+```typescript
+{createCompositionPair({
+  id: "MyNewVideo",
+  durationInFrames: 1200,
+  messages: myNewMessages,
+  logoPosition: "bottom-left",
+})}
+```
 
-```tsx
+**For desktop + mobile variants:**
+```typescript
+{createCompositionPair({
+  id: "MyNewVideo",
+  durationInFrames: 1200,
+  messages: myNewMessages,
+  logoPosition: "bottom-left",
+  includeMobile: true,  // Generates MyNewVideo + MyNewVideo-Mobile
+})}
+```
+
+### Adding a ChatDemo Composition
+
+#### Step 1: Add messages to `src/compositions/messages.ts`
+
+```typescript
+export const myDemoMessages: ChatDemoProps["messages"] = [
+  {
+    message: { type: "user", userName: "Tom", text: "Question here" },
+    startFrame: 0,
+    durationFrames: 120,
+    fadeToBackground: true,
+  },
+  {
+    message: { type: "loading", text: "Searching...", icon: "search" },
+    startFrame: 30,
+    durationFrames: 60,
+  },
+  {
+    message: { type: "ai", text: "Response here" },
+    startFrame: 90,
+    durationFrames: 210,
+  },
+];
+```
+
+#### Step 2: Add composition in `src/compositions/ChatDemoCompositions.tsx`
+
+```typescript
 <Composition
-  id="MyNewVideo"
-  component={ChatSequence}
-  durationInFrames={2000}
-  fps={60}
-  width={1080}
-  height={1920}
-  schema={chatSequenceSchema}
+  id="MyDemo"
+  component={ChatDemo}
+  durationInFrames={300}
+  fps={30}
+  width={1920}
+  height={1080}
+  schema={ChatDemoSchema}
   defaultProps={{
-    messages: myMessages,
-    brandName: "My Brand",
-    // ... other props
+    brandName: BRAND_NAME,
+    backgroundColor: BACKGROUND_COLOR,
+    messages: myDemoMessages,
   }}
 />
 ```
@@ -299,7 +388,7 @@ Add to `src/Root.tsx`:
     "Identifying trends...",
     "Preparing visualization..."
   ],
-  chartWidget: <EnpsTrendsAndTurnoverCard />
+  chartType: "enps-trends-turnover"
 }
 ```
 
