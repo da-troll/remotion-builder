@@ -29,13 +29,14 @@ npm run lint
 ```
 src/
 ├── Root.tsx              # Composition definitions with timing configurations
-├── theme.ts              # Design system tokens (colors, typography, timing)
+├── theme.ts              # Design system tokens (colors, typography, timing, chart styling)
 ├── fonts.ts              # Font configuration
 ├── index.ts              # Entry point
 ├── index.css             # Global styles (TailwindCSS v4)
 └── ChatSequence/
     ├── ChatSequence.tsx          # Main chat container component
     ├── MessageBubble.tsx         # Animated message bubble with typing effect
+    ├── chartUtils.ts             # Shared chart utilities (path generation, color mixing)
     ├── EnpsTrendsAndTurnoverCard.tsx  # Combined eNPS + Turnover charts
     ├── JoinersLeaversChart.tsx   # Animated line chart for turnover
     └── BrandLogo.tsx             # Avatar/logo component
@@ -134,6 +135,67 @@ theme.colors.surface.variant    // #f2f0f7 - AI bubble background
 theme.typography.fontFamily.heading  // "Inter"
 theme.typography.fontFamily.body     // "Inter"
 theme.typography.fontFamily.display  // "Source Serif 4"
+```
+
+#### Chart Styling Tokens
+
+All chart styling is centralized in `theme.chart` for consistency across components.
+
+**Title, Legend, and Axis Labels:**
+```typescript
+theme.chart.title.fontSize          // 18
+theme.chart.title.fontWeight        // 400
+theme.chart.title.color             // "#706e78"
+theme.chart.title.marginBottom      // 16
+
+theme.chart.legend.fontSize         // 12
+theme.chart.legend.fontWeight       // 500
+theme.chart.legend.gap              // 6 (vertical gap between items)
+theme.chart.legend.horizontalGap    // 20 (horizontal layout gap)
+theme.chart.legend.itemGap          // 8 (gap between indicator and text)
+theme.chart.legend.indicator.pill   // { width: 16, height: 4, borderRadius: 4 }
+theme.chart.legend.indicator.square // { width: 12, height: 12, borderRadius: 3 }
+
+theme.chart.axisLabel.fontSize      // 12
+theme.chart.axisLabel.color         // "#706e78"
+```
+
+**Line Chart Tokens** (`theme.chart.line`):
+```typescript
+theme.chart.line.strokeWidth          // 4 - Primary line thickness
+theme.chart.line.strokeWidthSecondary // 2.5 - For dense multi-line charts
+theme.chart.line.tension              // 0.3 - Bezier curve smoothness (0=straight, 1=very curved)
+theme.chart.line.padding              // { top: 10, right: 20, bottom: 25, left: 30 }
+theme.chart.line.labelOffset          // 5 - Distance from content to x-axis labels
+```
+
+**Compact Variants** (for embedded/smaller charts):
+```typescript
+theme.chart.compact.title.fontSize           // 14
+theme.chart.compact.legend.fontSize          // 10
+theme.chart.compact.axisLabel.fontSize       // 10
+theme.chart.compact.contentWidth             // 400
+theme.chart.compact.contentHeight            // 160
+```
+
+### Chart Utilities (`chartUtils.ts`)
+
+Shared utilities for creating consistent chart visualizations.
+
+**generateSmoothPath** - Creates smooth Bezier curves from data points using Catmull-Rom interpolation:
+```typescript
+import { generateSmoothPath } from "./ChatSequence/chartUtils";
+
+const points = data.map((d, i) => ({ x: xScale(i), y: yScale(d.value) }));
+const path = generateSmoothPath(points); // Uses theme.chart.line.tension by default
+const customPath = generateSmoothPath(points, 0.5); // Custom tension
+```
+
+**mixHexColors** - Blend two hex colors by ratio:
+```typescript
+import { mixHexColors } from "./ChatSequence/chartUtils";
+
+const blended = mixHexColors("#ff0000", "#0000ff", 0.5); // 50% mix → purple
 ```
 
 ### Timing System
@@ -307,18 +369,72 @@ timing: {
 ```
 
 ### Custom Chart Components
-Create new chart components in `src/ChatSequence/` using Remotion's animation hooks:
-```typescript
-import { spring, useCurrentFrame, useVideoConfig } from "remotion";
 
-export const MyChart: React.FC = () => {
+Create new chart components in `src/ChatSequence/` using Remotion's animation hooks and theme tokens.
+
+**Basic Chart Template:**
+```typescript
+import { spring, useCurrentFrame, useVideoConfig, interpolate } from "remotion";
+import { theme } from "../theme";
+import { generateSmoothPath } from "./chartUtils";
+
+export const MyLineChart: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const progress = spring({ frame, fps, config: { damping: 15 } });
+  // Animation progress (0 → 1)
+  const progress = spring({ frame, fps, config: { damping: 15, stiffness: 80 } });
 
-  return <svg>{/* Animated chart */}</svg>;
+  // Use theme tokens for dimensions
+  const chartWidth = theme.chart.contentWidth;  // 480
+  const chartHeight = 140;
+  const padding = theme.chart.line.padding;     // { top: 10, right: 20, bottom: 25, left: 30 }
+  const innerWidth = chartWidth - padding.left - padding.right;
+  const innerHeight = chartHeight - padding.top - padding.bottom;
+
+  // Scale functions
+  const xScale = (i: number) => padding.left + (i / (data.length - 1)) * innerWidth;
+  const yScale = (val: number) => padding.top + innerHeight - (val / maxValue) * innerHeight;
+
+  // Generate smooth path from data
+  const points = data.map((d, i) => ({ x: xScale(i), y: yScale(d.value) }));
+  const path = generateSmoothPath(points); // Uses theme.chart.line.tension
+
+  const pathLength = 600;
+
+  return (
+    <svg width={chartWidth} height={chartHeight}>
+      <path
+        d={path}
+        fill="none"
+        stroke={theme.colors.brand.primary}
+        strokeWidth={theme.chart.line.strokeWidth}  // 4
+        strokeLinecap="round"
+        strokeDasharray={pathLength}
+        strokeDashoffset={interpolate(progress, [0, 1], [pathLength, 0])}
+      />
+      {/* X-axis labels */}
+      {labels.map((label, i) => (
+        <text
+          key={label}
+          x={xScale(i)}
+          y={chartHeight - theme.chart.line.labelOffset}  // 5px from bottom
+          fill={theme.chart.axisLabel.color}
+          fontSize={theme.chart.axisLabel.fontSize}
+          textAnchor="middle"
+        >
+          {label}
+        </text>
+      ))}
+    </svg>
+  );
 };
+```
+
+**Multi-line Chart (use secondary stroke width):**
+```typescript
+// For charts with 3+ lines, use thinner strokes to avoid visual clutter
+strokeWidth={theme.chart.line.strokeWidthSecondary}  // 2.5
 ```
 
 ## Troubleshooting
