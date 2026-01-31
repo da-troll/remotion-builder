@@ -10,46 +10,40 @@ const backlogData = [
   { manager: "Others", pending: 8 },
 ];
 
-const interventions = [
-  "Delegate approvals for Manager X for 2 weeks",
-  "Pre-approve vacation blocks for hotspot teams",
-  "Run a 3-question pulse on workload & recovery",
-];
-
 interface BurnoutFastFixesCardProps {
   title?: string;
   hideTitle?: boolean;
   compact?: boolean;
   embedded?: boolean;
+  layout?: "desktop" | "mobile";
 }
 
 export const BurnoutFastFixesCard: React.FC<BurnoutFastFixesCardProps> = ({
-  title = "Fast fixes - Manager approval backlog",
+  title = "Manager approval backlog",
   hideTitle = false,
   compact = false,
   embedded = false,
+  layout = "desktop",
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const isMobile = layout === "mobile";
 
   const noCardStyle = compact || embedded;
 
   // Bar chart dimensions
-  const chartWidth = compact ? theme.chart.compact.contentWidth : theme.chart.contentWidth;
-  const chartHeight = compact ? 100 : 130;
+  const chartWidth = compact
+    ? theme.chart.compact.contentWidth
+    : isMobile
+      ? theme.chart.mobile.contentWidth
+      : theme.chart.contentWidth;
+  const chartHeight = compact ? 100 : isMobile ? 90 : 130;
   const padding = { top: 10, right: 20, bottom: 30, left: 90 };
   const innerWidth = chartWidth - padding.left - padding.right;
   const innerHeight = chartHeight - padding.top - padding.bottom;
 
   const maxPending = Math.max(...backlogData.map((d) => d.pending));
   const barHeight = innerHeight / backlogData.length - 6;
-
-  // Bullet list entrance
-  const bulletProgress = spring({
-    frame: Math.max(0, frame - 20),
-    fps,
-    config: { stiffness: 100, damping: 18 },
-  });
 
   return (
     <div
@@ -67,11 +61,19 @@ export const BurnoutFastFixesCard: React.FC<BurnoutFastFixesCardProps> = ({
         <h3
           style={{
             fontFamily: theme.chart.title.fontFamily,
-            fontSize: compact ? theme.chart.compact.title.fontSize : theme.chart.title.fontSize,
+            fontSize: compact
+              ? theme.chart.compact.title.fontSize
+              : isMobile
+                ? theme.chart.mobile.title.fontSize
+                : theme.chart.title.fontSize,
             fontWeight: theme.chart.title.fontWeight,
             color: theme.chart.title.color,
             margin: 0,
-            marginBottom: compact ? theme.chart.compact.title.marginBottom : theme.chart.title.marginBottom,
+            marginBottom: compact
+              ? theme.chart.compact.title.marginBottom
+              : isMobile
+                ? theme.chart.mobile.title.marginBottom
+                : theme.chart.title.marginBottom,
           }}
         >
           {title}
@@ -99,7 +101,7 @@ export const BurnoutFastFixesCard: React.FC<BurnoutFastFixesCardProps> = ({
                 y={y + barHeight / 2 + 4}
                 textAnchor="end"
                 fontFamily={theme.chart.axisLabel.fontFamily}
-                fontSize={compact ? 10 : 12}
+                fontSize={compact || isMobile ? 9 : 12}
                 fill={theme.chart.axisLabel.color}
               >
                 {d.manager}
@@ -145,52 +147,6 @@ export const BurnoutFastFixesCard: React.FC<BurnoutFastFixesCardProps> = ({
           Pending approvals (tasks)
         </text>
       </svg>
-
-      {/* Divider */}
-      <div
-        style={{
-          height: 1,
-          backgroundColor: theme.colors.surface.outline,
-          margin: "16px 0",
-        }}
-      />
-
-      {/* Quick interventions list */}
-      <div
-        style={{
-          fontFamily: theme.chart.insight.fontFamily,
-          fontSize: compact ? theme.chart.compact.insight.fontSize : theme.chart.insight.fontSize,
-          fontWeight: theme.chart.insight.fontWeight,
-          color: theme.chart.title.color,
-          marginBottom: 10,
-        }}
-      >
-        Recommended interventions
-      </div>
-
-      <ul
-        style={{
-          margin: 0,
-          paddingLeft: 20,
-          opacity: interpolate(bulletProgress, [0, 1], [0, 1]),
-          transform: `translateY(${interpolate(bulletProgress, [0, 1], [8, 0])}px)`,
-        }}
-      >
-        {interventions.map((item, i) => (
-          <li
-            key={i}
-            style={{
-              fontFamily: theme.typography.fontFamily.body,
-              fontSize: compact ? 12 : 14,
-              color: theme.colors.text.default,
-              marginBottom: 6,
-              lineHeight: 1.4,
-            }}
-          >
-            {item}
-          </li>
-        ))}
-      </ul>
     </div>
   );
 };

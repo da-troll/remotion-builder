@@ -60,6 +60,17 @@ export const theme = {
       bold: 700,
     },
   },
+  // Message bubble text styling
+  message: {
+    text: {
+      fontSize: 18, // Body text in messages
+      lineHeight: 1.5,
+    },
+    name: {
+      fontSize: 18, // Name label
+      fontWeight: 600, // semibold
+    },
+  },
   layout: {
     borderRadius: {
       card: 16, // size/radius/l (1rem)
@@ -122,8 +133,8 @@ export const theme = {
     // Insight text (explanatory text below charts)
     insight: {
       fontFamily: "Inter",
-      fontSize: 14, // Main insight text
-      fontSizeSmall: 12, // Secondary/muted insight text
+      fontSize: 18, // Match message text size for consistency
+      fontSizeSmall: 14, // Secondary/muted insight text
       fontWeight: 500, // medium
       color: "#706e78", // text.secondary
       lineHeight: 1.5,
@@ -164,6 +175,40 @@ export const theme = {
       width: 400,
       contentWidth: 400,
       contentHeight: 160,
+    },
+    // Mobile variants (for phone-like layouts with larger scaling)
+    mobile: {
+      title: {
+        fontSize: 14,
+        marginBottom: 10,
+      },
+      axisLabel: {
+        fontSize: 10,
+      },
+      legend: {
+        fontSize: 10,
+        gap: 4,
+        horizontalGap: 12,
+        itemGap: 4,
+        indicator: {
+          pill: {
+            width: 12,
+            height: 3,
+          },
+          square: {
+            width: 10,
+            height: 10,
+            borderRadius: 2,
+          },
+        },
+      },
+      insight: {
+        fontSize: 14,
+        fontSizeSmall: 11,
+      },
+      width: 320,
+      contentWidth: 320,
+      contentHeight: 120,
     },
     // Card container styling
     card: {

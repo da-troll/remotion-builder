@@ -10,46 +10,40 @@ const backlogData = [
   { manager: "Others", pending: 8 },
 ];
 
-const interventions = [
-  "Add backup approvers for 2 weeks (reduce queue time).",
-  "Batch-approve low-risk requests daily at 3pm.",
-  "Run a 3-question pulse on clarity + workload in hotspot teams.",
-];
-
 interface ManagerLoadInterventionsCardProps {
   title?: string;
   hideTitle?: boolean;
   compact?: boolean;
   embedded?: boolean;
+  layout?: "desktop" | "mobile";
 }
 
 export const ManagerLoadInterventionsCard: React.FC<ManagerLoadInterventionsCardProps> = ({
-  title = "Fastest fixes (this week)",
+  title = "Overdue approvals by manager",
   hideTitle = false,
   compact = false,
   embedded = false,
+  layout = "desktop",
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const isMobile = layout === "mobile";
 
   const noCardStyle = compact || embedded;
 
   // Bar chart dimensions
-  const chartWidth = compact ? theme.chart.compact.contentWidth : theme.chart.contentWidth;
-  const chartHeight = compact ? 100 : 130;
+  const chartWidth = compact
+    ? theme.chart.compact.contentWidth
+    : isMobile
+      ? theme.chart.mobile.contentWidth
+      : theme.chart.contentWidth;
+  const chartHeight = compact ? 100 : isMobile ? 90 : 130;
   const padding = { top: 10, right: 20, bottom: 30, left: 90 };
   const innerWidth = chartWidth - padding.left - padding.right;
   const innerHeight = chartHeight - padding.top - padding.bottom;
 
   const maxPending = Math.max(...backlogData.map((d) => d.pending));
   const barHeight = innerHeight / backlogData.length - 6;
-
-  // Bullet list entrance
-  const bulletProgress = spring({
-    frame: Math.max(0, frame - 20),
-    fps,
-    config: { stiffness: 100, damping: 18 },
-  });
 
   return (
     <div
@@ -77,19 +71,6 @@ export const ManagerLoadInterventionsCard: React.FC<ManagerLoadInterventionsCard
           {title}
         </h3>
       )}
-
-      {/* Chart subtitle */}
-      <div
-        style={{
-          fontFamily: theme.chart.legend.fontFamily,
-          fontSize: compact ? theme.chart.compact.legend.fontSize : theme.chart.legend.fontSize,
-          color: theme.chart.legend.color,
-          marginBottom: 8,
-          opacity: 0.8,
-        }}
-      >
-        Overdue approvals by manager
-      </div>
 
       {/* Horizontal bar chart */}
       <svg width={chartWidth} height={chartHeight}>
@@ -158,52 +139,6 @@ export const ManagerLoadInterventionsCard: React.FC<ManagerLoadInterventionsCard
           Pending approvals (tasks)
         </text>
       </svg>
-
-      {/* Divider */}
-      <div
-        style={{
-          height: 1,
-          backgroundColor: theme.colors.surface.outline,
-          margin: "16px 0",
-        }}
-      />
-
-      {/* Quick interventions list */}
-      <div
-        style={{
-          fontFamily: theme.chart.insight.fontFamily,
-          fontSize: compact ? theme.chart.compact.insight.fontSize : theme.chart.insight.fontSize,
-          fontWeight: theme.chart.insight.fontWeight,
-          color: theme.chart.title.color,
-          marginBottom: 10,
-        }}
-      >
-        Recommended interventions
-      </div>
-
-      <ul
-        style={{
-          margin: 0,
-          paddingLeft: 20,
-          opacity: interpolate(bulletProgress, [0, 1], [0, 1]),
-          transform: `translateY(${interpolate(bulletProgress, [0, 1], [8, 0])}px)`,
-        }}
-      >
-        {interventions.map((item, i) => (
-          <li
-            key={i}
-            style={{
-              fontFamily: theme.typography.fontFamily.body,
-              fontSize: compact ? 12 : 14,
-              color: theme.colors.text.default,
-              marginBottom: 6,
-              lineHeight: 1.4,
-            }}
-          >
-            {item}
-          </li>
-        ))}
-      </ul>
     </div>
   );
 };

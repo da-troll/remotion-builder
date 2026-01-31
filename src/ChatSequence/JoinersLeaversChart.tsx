@@ -26,6 +26,7 @@ interface JoinersLeaversChartProps {
   xLabels?: string[];
   hideTitle?: boolean;
   embedded?: boolean; // When true, removes card styling (bg, shadow, radius) for nesting in another card
+  layout?: "desktop" | "mobile";
 }
 
 export const JoinersLeaversChart: React.FC<JoinersLeaversChartProps> = ({
@@ -34,9 +35,11 @@ export const JoinersLeaversChart: React.FC<JoinersLeaversChartProps> = ({
   xLabels = ["Feb", "May", "Aug", "Nov"],
   hideTitle = false,
   embedded = false,
+  layout = "desktop",
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const isMobile = layout === "mobile";
 
   // Animation: Draw the lines
   const progress = spring({
@@ -45,9 +48,13 @@ export const JoinersLeaversChart: React.FC<JoinersLeaversChartProps> = ({
     config: theme.chart.animation.spring,
   });
 
-  // Chart dimensions using theme tokens (matching eNPS chart structure)
-  const chartWidth = compact ? theme.chart.compact.contentWidth : theme.chart.contentWidth;
-  const chartHeight = 140; // Same as eNPS chart
+  // Chart dimensions using theme tokens - mobile uses smaller dimensions
+  const chartWidth = compact
+    ? theme.chart.compact.contentWidth
+    : isMobile
+      ? theme.chart.mobile.contentWidth
+      : theme.chart.contentWidth;
+  const chartHeight = isMobile ? 100 : 140;
   const padding = theme.chart.line.padding;
   const innerWidth = chartWidth - padding.left - padding.right;
   const innerHeight = chartHeight - padding.top - padding.bottom;
@@ -89,13 +96,21 @@ export const JoinersLeaversChart: React.FC<JoinersLeaversChartProps> = ({
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
-            marginBottom: compact ? theme.chart.compact.title.marginBottom : theme.chart.title.marginBottom,
+            marginBottom: compact
+              ? theme.chart.compact.title.marginBottom
+              : isMobile
+                ? theme.chart.mobile.title.marginBottom
+                : theme.chart.title.marginBottom,
           }}
         >
           <h3
             style={{
               fontFamily: theme.chart.title.fontFamily,
-              fontSize: compact ? theme.chart.compact.title.fontSize : theme.chart.title.fontSize,
+              fontSize: compact
+                ? theme.chart.compact.title.fontSize
+                : isMobile
+                  ? theme.chart.mobile.title.fontSize
+                  : theme.chart.title.fontSize,
               fontWeight: theme.chart.title.fontWeight,
               color: theme.chart.title.color,
               margin: 0,
@@ -107,14 +122,18 @@ export const JoinersLeaversChart: React.FC<JoinersLeaversChartProps> = ({
           {/* Legend - Vertical Stack */}
           <div style={{
             display: "flex",
-            flexDirection: compact ? "row" : "column",
-            gap: compact ? theme.chart.compact.legend.gap : theme.chart.legend.gap
+            flexDirection: compact || isMobile ? "row" : "column",
+            gap: compact
+              ? theme.chart.compact.legend.gap
+              : isMobile
+                ? theme.chart.mobile.legend.gap
+                : theme.chart.legend.gap
           }}>
-            <div style={{ display: "flex", alignItems: "center", gap: compact ? theme.chart.compact.legend.itemGap : theme.chart.legend.itemGap }}>
+            <div style={{ display: "flex", alignItems: "center", gap: compact || isMobile ? theme.chart.mobile.legend.itemGap : theme.chart.legend.itemGap }}>
               <div
                 style={{
-                  width: compact ? theme.chart.compact.legend.indicator.pill.width : theme.chart.legend.indicator.pill.width,
-                  height: compact ? theme.chart.compact.legend.indicator.pill.height : theme.chart.legend.indicator.pill.height,
+                  width: compact || isMobile ? theme.chart.mobile.legend.indicator.pill.width : theme.chart.legend.indicator.pill.width,
+                  height: compact || isMobile ? theme.chart.mobile.legend.indicator.pill.height : theme.chart.legend.indicator.pill.height,
                   borderRadius: theme.chart.legend.indicator.pill.borderRadius,
                   backgroundColor: theme.colors.brand.primary,
                 }}
@@ -122,7 +141,7 @@ export const JoinersLeaversChart: React.FC<JoinersLeaversChartProps> = ({
               <span
                 style={{
                   fontFamily: theme.chart.legend.fontFamily,
-                  fontSize: compact ? theme.chart.compact.legend.fontSize : theme.chart.legend.fontSize,
+                  fontSize: compact || isMobile ? theme.chart.mobile.legend.fontSize : theme.chart.legend.fontSize,
                   fontWeight: theme.chart.legend.fontWeight,
                   color: theme.chart.legend.color,
                 }}
@@ -130,11 +149,11 @@ export const JoinersLeaversChart: React.FC<JoinersLeaversChartProps> = ({
                 Joiners
               </span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: compact ? theme.chart.compact.legend.itemGap : theme.chart.legend.itemGap }}>
+            <div style={{ display: "flex", alignItems: "center", gap: compact || isMobile ? theme.chart.mobile.legend.itemGap : theme.chart.legend.itemGap }}>
               <div
                 style={{
-                  width: compact ? theme.chart.compact.legend.indicator.pill.width : theme.chart.legend.indicator.pill.width,
-                  height: compact ? theme.chart.compact.legend.indicator.pill.height : theme.chart.legend.indicator.pill.height,
+                  width: compact || isMobile ? theme.chart.mobile.legend.indicator.pill.width : theme.chart.legend.indicator.pill.width,
+                  height: compact || isMobile ? theme.chart.mobile.legend.indicator.pill.height : theme.chart.legend.indicator.pill.height,
                   borderRadius: theme.chart.legend.indicator.pill.borderRadius,
                   backgroundColor: theme.colors.charts.orange,
                 }}
@@ -142,7 +161,7 @@ export const JoinersLeaversChart: React.FC<JoinersLeaversChartProps> = ({
               <span
                 style={{
                   fontFamily: theme.chart.legend.fontFamily,
-                  fontSize: compact ? theme.chart.compact.legend.fontSize : theme.chart.legend.fontSize,
+                  fontSize: compact || isMobile ? theme.chart.mobile.legend.fontSize : theme.chart.legend.fontSize,
                   fontWeight: theme.chart.legend.fontWeight,
                   color: theme.chart.legend.color,
                 }}
@@ -189,7 +208,7 @@ export const JoinersLeaversChart: React.FC<JoinersLeaversChartProps> = ({
               y={chartHeight - theme.chart.line.labelOffset}
               fill={theme.chart.axisLabel.color}
               fontFamily={theme.chart.axisLabel.fontFamily}
-              fontSize={theme.chart.axisLabel.fontSize}
+              fontSize={isMobile ? theme.chart.mobile.axisLabel.fontSize : theme.chart.axisLabel.fontSize}
               textAnchor="middle"
             >
               {label}

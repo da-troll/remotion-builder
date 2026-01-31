@@ -110,6 +110,7 @@ export const longMessages: ChatMessage[] = [
       "Building chart",
     ],
     chartType: "enps-trends-turnover",
+    chartInsight: "9–10s dip when leavers spike (Oct–Nov), while 6–7s rise. Correlation looks strong (illustrative) — worth slicing by team next. Correlation ≠ causation.",
   },
 ];
 
@@ -205,6 +206,7 @@ export const burnoutCapacityMessages: ChatMessage[] = [
       "Building chart",
     ],
     chartType: "capacity-stress-signal",
+    chartInsight: "Workload drops → sick leave rises ~4 weeks later. Vacation usage dips at the same time.",
   },
   {
     text: "Where is it concentrated? I need the top hotspots I should act on this week.",
@@ -224,6 +226,7 @@ export const burnoutCapacityMessages: ChatMessage[] = [
       "Building chart",
     ],
     chartType: "capacity-hotspots-table",
+    chartInsight: "Sorted by workload drop + sick leave rise. Vacation backlog = % with >10 days remaining.",
   },
   {
     text: "And what's the fastest intervention that actually helps?",
@@ -243,6 +246,14 @@ export const burnoutCapacityMessages: ChatMessage[] = [
       "Building chart",
     ],
     chartType: "burnout-fast-fixes",
+    chartInsight: {
+      heading: "Recommended interventions:",
+      items: [
+        "Delegate approvals for top managers for 2 weeks",
+        "Pre-approve vacation blocks for hotspot teams",
+        "Run a 3-question pulse on workload & recovery",
+      ],
+    },
   },
 ];
 
@@ -282,6 +293,7 @@ export const policyImpactMessages: ChatMessage[] = [
       "Building chart",
     ],
     chartType: "policy-impact-overview",
+    chartInsight: "Adoption increased immediately; clarity improved gradually.",
   },
   {
     text: "Nice. Where did it improve—and where didn't it move at all?",
@@ -301,6 +313,7 @@ export const policyImpactMessages: ChatMessage[] = [
       "Building chart",
     ],
     chartType: "policy-impact-segments",
+    chartInsight: "Marketing and Sales show flat adoption — may need targeted manager guidance.",
   },
   {
     text: "So what's the move—what should we do next?",
@@ -310,11 +323,18 @@ export const policyImpactMessages: ChatMessage[] = [
     userAvatar: avatars.robert,
   },
   {
-    text: "Two quick wins: (1) tighten manager guidance where adoption stayed flat, and (2) run a 3-question pulse on clarity + fairness. Behavior moved fast—sentiment lags unless we make it consistent.",
+    text: "Behavior moved fast—sentiment lags unless we make it consistent.",
     isAi: true,
     delay: storyDelays.msg8,
     userName: "Sia",
     userAvatar: avatars.sia,
+    chartInsight: {
+      heading: "Two quick wins:",
+      items: [
+        "Tighten manager guidance where adoption stayed flat",
+        "Run a 3-question pulse on clarity + fairness",
+      ],
+    },
   },
 ];
 
@@ -354,6 +374,7 @@ export const skillsCoverageMessages: ChatMessage[] = [
       "Building chart",
     ],
     chartType: "skills-coverage-risk",
+    chartInsight: "4 critical skills have 1–2 person coverage — single point of failure risk.",
   },
   {
     text: "Now overlay planned leave. What could go to zero coverage in the next 30 days?",
@@ -373,6 +394,7 @@ export const skillsCoverageMessages: ChatMessage[] = [
       "Building chart",
     ],
     chartType: "skills-coverage-gap-next-30",
+    chartInsight: "16 total gap days across 3 critical skills. Week 3 is highest risk.",
   },
   {
     text: "Give me a mitigation plan I can actually execute this month.",
@@ -392,6 +414,7 @@ export const skillsCoverageMessages: ChatMessage[] = [
       "Building chart",
     ],
     chartType: "skills-mitigation-plan",
+    chartInsight: "Priority: AWS and SOC 2 coverage gaps are most urgent — both have approved leave in Week 2–3.",
   },
 ];
 
@@ -431,6 +454,7 @@ export const managerLoadMessages: ChatMessage[] = [
       "Building chart",
     ],
     chartType: "manager-load-signal",
+    chartInsight: "As backlog rises in Oct–Nov, manager support softens and sick leave ticks up.",
   },
   {
     text: "Okay—who are the biggest outliers? Teams + managers. Keep it high signal.",
@@ -450,6 +474,7 @@ export const managerLoadMessages: ChatMessage[] = [
       "Building chart",
     ],
     chartType: "manager-outliers-table",
+    chartInsight: "Sorted by overdue approvals + span of control. Support Δ = last 3 months.",
   },
   {
     text: "Give me a fix we can execute this week—something operational, not \"do better.\"",
@@ -469,6 +494,14 @@ export const managerLoadMessages: ChatMessage[] = [
       "Building chart",
     ],
     chartType: "manager-load-interventions",
+    chartInsight: {
+      heading: "Recommended interventions:",
+      items: [
+        "Add backup approvers for 2 weeks",
+        "Batch-approve low-risk requests daily at 3pm",
+        "Run a 3-question pulse on clarity + workload in hotspot teams",
+      ],
+    },
   },
 ];
 
@@ -508,6 +541,7 @@ export const reviewsRetentionMessages: ChatMessage[] = [
       "Building chart",
     ],
     chartType: "reviews-to-retention-signal",
+    chartInsight: "Departments with weaker outcomes tend to see leavers rise in the next window.",
   },
   {
     text: "Where is the gap biggest? Department view—keep it to the point.",
@@ -527,6 +561,7 @@ export const reviewsRetentionMessages: ChatMessage[] = [
       "Building chart",
     ],
     chartType: "review-gap-by-dept",
+    chartInsight: "Operations and Customer Success show the largest gaps — worth investigating.",
   },
   {
     text: "What explains the weakest department? Give me the likely driver signal.",
@@ -546,6 +581,7 @@ export const reviewsRetentionMessages: ChatMessage[] = [
       "Building chart",
     ],
     chartType: "review-driver-deltas",
+    chartInsight: "Biggest drops cluster around clarity + fairness. Recommend manager calibration + clearer rubric.",
   },
 ];
 

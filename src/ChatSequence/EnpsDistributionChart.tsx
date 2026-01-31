@@ -36,6 +36,7 @@ interface EnpsDistributionChartProps {
   hideTitle?: boolean;
   compact?: boolean;
   embedded?: boolean; // When true, removes card styling (bg, shadow, radius) for nesting in another card
+  layout?: "desktop" | "mobile";
 }
 
 // Colors
@@ -58,7 +59,10 @@ export const EnpsDistributionChart: React.FC<EnpsDistributionChartProps> = ({
   hideTitle = false,
   compact = false,
   embedded = false,
+  layout = "desktop",
 }) => {
+  const isMobile = layout === "mobile";
+
   // Calculate category totals
   const totalResponses = scoreData.reduce((sum, d) => sum + d.count, 0);
   const promoters = scoreData.filter((d) => d.score >= 9).reduce((sum, d) => sum + d.count, 0);
@@ -75,10 +79,14 @@ export const EnpsDistributionChart: React.FC<EnpsDistributionChartProps> = ({
   const noCardStyle = compact || embedded;
 
   // Chart dimensions (width from theme, height flexible for content)
-  const chartWidth = compact ? theme.chart.compact.width : theme.chart.width;
-  const chartHeight = compact ? 160 : 220;
+  const chartWidth = compact
+    ? theme.chart.compact.width
+    : isMobile
+      ? theme.chart.mobile.width
+      : theme.chart.width;
+  const chartHeight = compact ? 160 : isMobile ? 140 : 220;
   const padding = { top: 20, right: 20, bottom: 50, left: 40 };
-  const barWidth = compact ? 18 : 24;
+  const barWidth = compact ? 18 : isMobile ? 16 : 24;
 
   const innerWidth = chartWidth - padding.left - padding.right;
   const innerHeight = chartHeight - padding.top - padding.bottom;
@@ -107,10 +115,18 @@ export const EnpsDistributionChart: React.FC<EnpsDistributionChartProps> = ({
         <div
           style={{
             fontFamily: theme.chart.title.fontFamily,
-            fontSize: compact ? theme.chart.compact.title.fontSize : theme.chart.title.fontSize,
+            fontSize: compact
+              ? theme.chart.compact.title.fontSize
+              : isMobile
+                ? theme.chart.mobile.title.fontSize
+                : theme.chart.title.fontSize,
             fontWeight: theme.chart.title.fontWeight,
             color: theme.chart.title.color,
-            marginBottom: compact ? theme.chart.compact.title.marginBottom : theme.chart.title.marginBottom,
+            marginBottom: compact
+              ? theme.chart.compact.title.marginBottom
+              : isMobile
+                ? theme.chart.mobile.title.marginBottom
+                : theme.chart.title.marginBottom,
           }}
         >
           {title}
@@ -121,42 +137,50 @@ export const EnpsDistributionChart: React.FC<EnpsDistributionChartProps> = ({
       <div
         style={{
           display: "flex",
-          gap: compact ? theme.chart.compact.legend.gap : theme.chart.legend.horizontalGap,
-          marginBottom: compact ? theme.chart.compact.title.marginBottom : theme.chart.title.marginBottom,
+          gap: compact
+            ? theme.chart.compact.legend.gap
+            : isMobile
+              ? theme.chart.mobile.legend.horizontalGap
+              : theme.chart.legend.horizontalGap,
+          marginBottom: compact
+            ? theme.chart.compact.title.marginBottom
+            : isMobile
+              ? theme.chart.mobile.title.marginBottom
+              : theme.chart.title.marginBottom,
           fontFamily: theme.chart.legend.fontFamily,
-          fontSize: compact ? theme.chart.compact.legend.fontSize : theme.chart.legend.fontSize,
+          fontSize: compact || isMobile ? theme.chart.mobile.legend.fontSize : theme.chart.legend.fontSize,
           fontWeight: theme.chart.legend.fontWeight,
           color: theme.chart.legend.color,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: compact ? theme.chart.compact.legend.itemGap : theme.chart.legend.itemGap }}>
+        <div style={{ display: "flex", alignItems: "center", gap: compact || isMobile ? theme.chart.mobile.legend.itemGap : theme.chart.legend.itemGap }}>
           <div
             style={{
-              width: compact ? theme.chart.compact.legend.indicator.square.width : theme.chart.legend.indicator.square.width,
-              height: compact ? theme.chart.compact.legend.indicator.square.height : theme.chart.legend.indicator.square.height,
-              borderRadius: compact ? theme.chart.compact.legend.indicator.square.borderRadius : theme.chart.legend.indicator.square.borderRadius,
+              width: compact || isMobile ? theme.chart.mobile.legend.indicator.square.width : theme.chart.legend.indicator.square.width,
+              height: compact || isMobile ? theme.chart.mobile.legend.indicator.square.height : theme.chart.legend.indicator.square.height,
+              borderRadius: compact || isMobile ? theme.chart.mobile.legend.indicator.square.borderRadius : theme.chart.legend.indicator.square.borderRadius,
               backgroundColor: colors.promoters,
             }}
           />
           <span>Promoters (9-10) {promotersPct}%</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: compact ? theme.chart.compact.legend.itemGap : theme.chart.legend.itemGap }}>
+        <div style={{ display: "flex", alignItems: "center", gap: compact || isMobile ? theme.chart.mobile.legend.itemGap : theme.chart.legend.itemGap }}>
           <div
             style={{
-              width: compact ? theme.chart.compact.legend.indicator.square.width : theme.chart.legend.indicator.square.width,
-              height: compact ? theme.chart.compact.legend.indicator.square.height : theme.chart.legend.indicator.square.height,
-              borderRadius: compact ? theme.chart.compact.legend.indicator.square.borderRadius : theme.chart.legend.indicator.square.borderRadius,
+              width: compact || isMobile ? theme.chart.mobile.legend.indicator.square.width : theme.chart.legend.indicator.square.width,
+              height: compact || isMobile ? theme.chart.mobile.legend.indicator.square.height : theme.chart.legend.indicator.square.height,
+              borderRadius: compact || isMobile ? theme.chart.mobile.legend.indicator.square.borderRadius : theme.chart.legend.indicator.square.borderRadius,
               backgroundColor: colors.passives,
             }}
           />
           <span>Passives (7-8) {passivesPct}%</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: compact ? theme.chart.compact.legend.itemGap : theme.chart.legend.itemGap }}>
+        <div style={{ display: "flex", alignItems: "center", gap: compact || isMobile ? theme.chart.mobile.legend.itemGap : theme.chart.legend.itemGap }}>
           <div
             style={{
-              width: compact ? theme.chart.compact.legend.indicator.square.width : theme.chart.legend.indicator.square.width,
-              height: compact ? theme.chart.compact.legend.indicator.square.height : theme.chart.legend.indicator.square.height,
-              borderRadius: compact ? theme.chart.compact.legend.indicator.square.borderRadius : theme.chart.legend.indicator.square.borderRadius,
+              width: compact || isMobile ? theme.chart.mobile.legend.indicator.square.width : theme.chart.legend.indicator.square.width,
+              height: compact || isMobile ? theme.chart.mobile.legend.indicator.square.height : theme.chart.legend.indicator.square.height,
+              borderRadius: compact || isMobile ? theme.chart.mobile.legend.indicator.square.borderRadius : theme.chart.legend.indicator.square.borderRadius,
               backgroundColor: colors.detractors,
             }}
           />
@@ -247,7 +271,7 @@ export const EnpsDistributionChart: React.FC<EnpsDistributionChartProps> = ({
               x={x}
               y={chartHeight - padding.bottom + 20}
               textAnchor="middle"
-              fontSize={compact ? theme.chart.compact.axisLabel.fontSize : theme.chart.axisLabel.fontSize}
+              fontSize={compact || isMobile ? theme.chart.mobile.axisLabel.fontSize : theme.chart.axisLabel.fontSize}
               fontFamily={theme.chart.axisLabel.fontFamily}
               fill={theme.chart.axisLabel.color}
             >

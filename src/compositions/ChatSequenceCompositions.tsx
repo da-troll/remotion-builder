@@ -19,9 +19,9 @@ const BACKGROUND_COLOR = "#fffcfb";
 const DESKTOP_BG = "simployer-assets/funky-bg.png";
 const MOBILE_BG = "simployer-assets/funky-bg-3-mobile-cropped.png";
 
-// Dimensions + defaults
-const DESKTOP = { width: 1920, height: 1080, gradientFade: true };
-const MOBILE = { width: 1080, height: 1226 };
+// Dimensions + defaults (4K desktop, portrait mobile)
+const DESKTOP = { width: 3840, height: 2160, gradientFade: true, layout: "desktop" as const };
+const MOBILE = { width: 1440, height: 2560, layout: "mobile" as const };
 
 // Helper to create a single composition
 interface CompositionConfig {
@@ -31,6 +31,7 @@ interface CompositionConfig {
   logoPosition?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
   carouselMode?: boolean;
   gradientFade?: boolean;
+  layout?: "desktop" | "mobile";
   width: number;
   height: number;
   backgroundImage: string;
@@ -43,6 +44,7 @@ const createComposition = ({
   logoPosition = "bottom-left",
   carouselMode = false,
   gradientFade = false,
+  layout = "mobile",
   width,
   height,
   backgroundImage,
@@ -62,6 +64,7 @@ const createComposition = ({
       logoPosition,
       carouselMode,
       gradientFade,
+      layout,
       messages,
     }}
   />
@@ -83,14 +86,6 @@ export const ChatSequenceCompositions: React.FC = () => (
           id: "ChatSequence-MultiTurn",
           durationInFrames: 900,
           messages: multiTurnMessages,
-          logoPosition: "top-right",
-          ...DESKTOP,
-          backgroundImage: DESKTOP_BG,
-        })}
-        {createComposition({
-          id: "ChatSequence-Chart",
-          durationInFrames: 800,
-          messages: chartMessages,
           logoPosition: "top-right",
           ...DESKTOP,
           backgroundImage: DESKTOP_BG,
@@ -154,6 +149,14 @@ export const ChatSequenceCompositions: React.FC = () => (
 
     {/* Experiments folder */}
     <Folder name="Experiments">
+      {createComposition({
+        id: "Experiment-Chart",
+        durationInFrames: 800,
+        messages: chartMessages,
+        logoPosition: "top-right",
+        ...DESKTOP,
+        backgroundImage: DESKTOP_BG,
+      })}
       {createComposition({
         id: "Experiment-Long",
         durationInFrames: 2700,

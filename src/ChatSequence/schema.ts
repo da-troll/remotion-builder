@@ -9,6 +9,15 @@ export const ChatMessageSchema = z.object({
   userAvatar: z.string().optional(), // Path to user avatar image (relative to public/)
   reasoningSteps: z.array(z.string()).optional(),
   showChart: z.boolean().optional(), // Flag to show chart widget (legacy, uses joiners-leavers)
+  // Insight text displayed below chart widget in message bubble
+  // Can be a single string (paragraph) or object with heading + numbered list
+  chartInsight: z.union([
+    z.string(),
+    z.object({
+      heading: z.string(),
+      items: z.array(z.string()),
+    }),
+  ]).optional(),
   chartType: z.enum([
     // Existing chart types
     "joiners-leavers",
@@ -43,6 +52,7 @@ export const ChatSequenceSchema = z.object({
   logoPosition: z.enum(["top-left", "top-right", "bottom-left", "bottom-right"]).optional().default("bottom-left"),
   carouselMode: z.boolean().optional().default(false), // When true, older messages fade out as new ones appear
   gradientFade: z.boolean().optional().default(false), // When true, adds gradient overlay that fades messages towards top
+  layout: z.enum(["desktop", "mobile"]).optional().default("mobile"), // Desktop: 4K right-aligned scaled, Mobile: portrait centered
   messages: z.array(ChatMessageSchema),
 });
 

@@ -16,6 +16,7 @@ interface MessageBubbleProps {
   // Props for reasoning & chart
   reasoningSteps?: ThinkingStep[];
   chartWidget?: React.ReactNode;
+  chartInsight?: string | { heading: string; items: string[] }; // Insight text (string = paragraph, object = heading + numbered list)
   // Carousel mode props (fade/exit animations)
   fadeToBackgroundFrame?: number; // Frame (relative to delay) when message fades to background
   exitFrame?: number; // Frame (relative to delay) when message starts exiting
@@ -29,6 +30,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
   userAvatar,
   reasoningSteps,
   chartWidget,
+  chartInsight,
   fadeToBackgroundFrame,
   exitFrame,
 }) => {
@@ -182,8 +184,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             ? theme.colors.text.secondary
             : theme.colors.text.inverted,
           fontFamily: fonts.body,
-          fontSize: theme.typography.size.body + 2,
-          lineHeight: 1.5,
+          fontSize: theme.message.text.fontSize,
+          lineHeight: theme.message.text.lineHeight,
           borderRadius: theme.layout.borderRadius.bubble,
           // Sharp corner on the "tail" side
           borderBottomLeftRadius: isAi
@@ -198,8 +200,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         {/* Name label */}
         <div
           style={{
-            fontSize: theme.typography.size.body + 2,
-            fontWeight: theme.typography.weight.semibold,
+            fontSize: theme.message.name.fontSize,
+            fontWeight: theme.message.name.fontWeight,
             color: isAi ? theme.colors.text.secondary : "rgba(255,255,255,0.85)",
             marginBottom: 6,
           }}
@@ -214,8 +216,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             {isThinking && reasoningSteps && (
               <div
                 style={{
-                  fontWeight: theme.typography.weight.medium,
-                  fontSize: theme.typography.size.body,
+                  fontWeight: theme.typography.weight.regular,
+                  fontSize: theme.message.text.fontSize,
                   background:
                     "linear-gradient(90deg, #706e78 0%, #706e78 42%, #ffffff 50%, #706e78 58%, #706e78 100%)",
                   backgroundSize: "300% 100%",
@@ -239,18 +241,110 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                 }}
               >
                 {chartWidget}
+                {/* Chart insight text - rendered below chart, inside bubble */}
+                {chartInsight && (
+                  <div
+                    style={{
+                      fontFamily: theme.typography.fontFamily.body,
+                      fontSize: theme.chart.insight.fontSize,
+                      color: theme.chart.insight.color,
+                      lineHeight: theme.chart.insight.lineHeight,
+                      marginTop: 16,
+                    }}
+                  >
+                    {typeof chartInsight === "object" ? (
+                      // Render as heading + numbered list
+                      <>
+                        <div
+                          style={{
+                            fontWeight: theme.typography.weight.semibold,
+                            marginBottom: 8,
+                          }}
+                        >
+                          {chartInsight.heading}
+                        </div>
+                        <ol
+                          style={{
+                            margin: 0,
+                            marginLeft: 8,
+                            paddingLeft: 24,
+                            listStyleType: "decimal",
+                            fontSize: theme.chart.insight.fontSizeSmall,
+                          }}
+                        >
+                          {chartInsight.items.map((item, i) => (
+                            <li key={i} style={{ marginBottom: i < chartInsight.items.length - 1 ? 6 : 0 }}>
+                              {item}
+                            </li>
+                          ))}
+                        </ol>
+                      </>
+                    ) : (
+                      // Render as paragraph
+                      chartInsight
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </>
         )}
 
         {/* REGULAR TEXT MESSAGE with Ghost Text */}
-        {!isReasoningMessage && text && (
-          <div style={{ whiteSpace: "pre-wrap", lineHeight: "normal" }}>
-            {/* Visible Text */}
-            <span>{visiblePart}</span>
-            {/* Ghost Text (Takes up space but invisible) */}
-            <span style={{ opacity: 0 }}>{invisiblePart}</span>
+        {!isReasoningMessage && (text || chartInsight) && (
+          <div>
+            {text && (
+              <div style={{ whiteSpace: "pre-wrap", lineHeight: "normal" }}>
+                {/* Visible Text */}
+                <span>{visiblePart}</span>
+                {/* Ghost Text (Takes up space but invisible) */}
+                <span style={{ opacity: 0 }}>{invisiblePart}</span>
+              </div>
+            )}
+            {/* Chart insight can also render for text-only messages (for formatted lists) */}
+            {chartInsight && (
+              <div
+                style={{
+                  fontFamily: theme.typography.fontFamily.body,
+                  fontSize: theme.chart.insight.fontSize,
+                  color: theme.chart.insight.color,
+                  lineHeight: theme.chart.insight.lineHeight,
+                  marginTop: text ? 16 : 0,
+                }}
+              >
+                {typeof chartInsight === "object" ? (
+                  // Render as heading + numbered list
+                  <>
+                    <div
+                      style={{
+                        fontWeight: theme.typography.weight.semibold,
+                        marginBottom: 8,
+                      }}
+                    >
+                      {chartInsight.heading}
+                    </div>
+                    <ol
+                      style={{
+                        margin: 0,
+                        marginLeft: 8,
+                        paddingLeft: 24,
+                        listStyleType: "decimal",
+                        fontSize: theme.chart.insight.fontSizeSmall,
+                      }}
+                    >
+                      {chartInsight.items.map((item, i) => (
+                        <li key={i} style={{ marginBottom: i < chartInsight.items.length - 1 ? 6 : 0 }}>
+                          {item}
+                        </li>
+                      ))}
+                    </ol>
+                  </>
+                ) : (
+                  // Render as paragraph
+                  chartInsight
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

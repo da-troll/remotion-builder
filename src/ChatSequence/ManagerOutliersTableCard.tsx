@@ -15,6 +15,7 @@ interface ManagerOutliersTableCardProps {
   hideTitle?: boolean;
   compact?: boolean;
   embedded?: boolean;
+  layout?: "desktop" | "mobile";
 }
 
 // Delta pill component
@@ -50,9 +51,11 @@ export const ManagerOutliersTableCard: React.FC<ManagerOutliersTableCardProps> =
   hideTitle = false,
   compact = false,
   embedded = false,
+  layout = "desktop",
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const isMobile = layout === "mobile";
 
   const noCardStyle = compact || embedded;
 
@@ -68,20 +71,20 @@ export const ManagerOutliersTableCard: React.FC<ManagerOutliersTableCardProps> =
 
   const headerStyle: React.CSSProperties = {
     fontFamily: theme.chart.legend.fontFamily,
-    fontSize: compact ? 10 : 11,
+    fontSize: compact || isMobile ? 9 : 11,
     fontWeight: 600,
     color: theme.chart.legend.color,
     textAlign: "left",
-    padding: "8px 12px",
+    padding: isMobile ? "6px 8px" : "8px 12px",
     borderBottom: `1px solid ${theme.colors.surface.outline}`,
   };
 
   const cellStyle: React.CSSProperties = {
     fontFamily: theme.typography.fontFamily.body,
-    fontSize: compact ? 12 : 13,
+    fontSize: compact || isMobile ? 10 : 13,
     fontWeight: 400,
     color: theme.colors.text.default,
-    padding: "10px 12px",
+    padding: isMobile ? "6px 8px" : "10px 12px",
     borderBottom: `1px solid ${theme.colors.surface.outline}`,
   };
 
@@ -156,19 +159,6 @@ export const ManagerOutliersTableCard: React.FC<ManagerOutliersTableCardProps> =
           })}
         </tbody>
       </table>
-
-      {/* Footer note */}
-      <div
-        style={{
-          fontFamily: theme.chart.insight.fontFamily,
-          fontSize: compact ? theme.chart.compact.insight.fontSizeSmall : theme.chart.insight.fontSizeSmall,
-          color: theme.chart.legend.color,
-          marginTop: 12,
-          opacity: 0.8,
-        }}
-      >
-        Sorted by overdue approvals + span of control. Support Δ = last 3 months.
-      </div>
     </div>
   );
 };

@@ -26,6 +26,7 @@ interface ManagerLoadSignalCardProps {
   hideTitle?: boolean;
   compact?: boolean;
   embedded?: boolean;
+  layout?: "desktop" | "mobile";
 }
 
 export const ManagerLoadSignalCard: React.FC<ManagerLoadSignalCardProps> = ({
@@ -34,9 +35,11 @@ export const ManagerLoadSignalCard: React.FC<ManagerLoadSignalCardProps> = ({
   hideTitle = false,
   compact = false,
   embedded = false,
+  layout = "desktop",
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const isMobile = layout === "mobile";
 
   // Stagger line drawing: line 1 first, line 2 delayed by 6 frames
   const progress1 = spring({
@@ -55,8 +58,12 @@ export const ManagerLoadSignalCard: React.FC<ManagerLoadSignalCardProps> = ({
   const noCardStyle = compact || embedded;
 
   // Chart dimensions
-  const chartWidth = compact ? theme.chart.compact.contentWidth : theme.chart.contentWidth;
-  const chartHeight = compact ? 120 : 160;
+  const chartWidth = compact
+    ? theme.chart.compact.contentWidth
+    : isMobile
+      ? theme.chart.mobile.contentWidth
+      : theme.chart.contentWidth;
+  const chartHeight = compact ? 120 : isMobile ? 100 : 160;
   const padding = theme.chart.line.padding;
   const innerWidth = chartWidth - padding.left - padding.right;
   const innerHeight = chartHeight - padding.top - padding.bottom;
@@ -223,21 +230,6 @@ export const ManagerLoadSignalCard: React.FC<ManagerLoadSignalCardProps> = ({
           );
         })}
       </svg>
-
-      {/* Insight text */}
-      <div
-        style={{
-          fontFamily: theme.chart.insight.fontFamily,
-          fontSize: compact ? theme.chart.compact.insight.fontSize : theme.chart.insight.fontSize,
-          color: theme.chart.insight.color,
-          lineHeight: theme.chart.insight.lineHeight,
-          marginTop: 12,
-        }}
-      >
-        <span style={{ fontWeight: theme.chart.insight.fontWeight }}>
-          As backlog rises in Oct–Nov, manager support softens and sick leave ticks up.
-        </span>
-      </div>
     </div>
   );
 };

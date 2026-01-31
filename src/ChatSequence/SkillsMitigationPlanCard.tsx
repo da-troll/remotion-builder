@@ -39,6 +39,7 @@ interface SkillsMitigationPlanCardProps {
   hideTitle?: boolean;
   compact?: boolean;
   embedded?: boolean;
+  layout?: "desktop" | "mobile";
 }
 
 export const SkillsMitigationPlanCard: React.FC<SkillsMitigationPlanCardProps> = ({
@@ -46,9 +47,11 @@ export const SkillsMitigationPlanCard: React.FC<SkillsMitigationPlanCardProps> =
   hideTitle = false,
   compact = false,
   embedded = false,
+  layout = "desktop",
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const isMobile = layout === "mobile";
 
   const noCardStyle = compact || embedded;
 
@@ -77,20 +80,20 @@ export const SkillsMitigationPlanCard: React.FC<SkillsMitigationPlanCardProps> =
 
   const headerStyle: React.CSSProperties = {
     fontFamily: theme.chart.legend.fontFamily,
-    fontSize: compact ? 9 : 10,
+    fontSize: compact || isMobile ? 9 : 10,
     fontWeight: 600,
     color: theme.chart.legend.color,
     textAlign: "left",
-    padding: "5px 8px",
+    padding: isMobile ? "4px 6px" : "5px 8px",
     borderBottom: `1px solid ${theme.colors.surface.outline}`,
   };
 
   const cellStyle: React.CSSProperties = {
     fontFamily: theme.typography.fontFamily.body,
-    fontSize: compact ? 10 : 11,
+    fontSize: compact || isMobile ? 10 : 11,
     fontWeight: 400,
     color: theme.colors.text.default,
-    padding: "6px 8px",
+    padding: isMobile ? "5px 6px" : "6px 8px",
     borderBottom: `1px solid ${theme.colors.surface.outline}`,
   };
 
@@ -257,24 +260,6 @@ export const SkillsMitigationPlanCard: React.FC<SkillsMitigationPlanCardProps> =
             );
           })}
         </div>
-      </div>
-
-      {/* Insight text (outside cards, in bubble background) */}
-      <div
-        style={{
-          fontFamily: theme.chart.insight.fontFamily,
-          fontSize: compact ? theme.chart.compact.insight.fontSize : theme.chart.insight.fontSize,
-          color: theme.chart.insight.color,
-          lineHeight: theme.chart.insight.lineHeight,
-        }}
-      >
-        <span style={{ fontWeight: theme.chart.insight.fontWeight }}>
-          Priority: AWS and SOC 2 coverage gaps are most urgent
-        </span>
-        {" — "}
-        <span style={{ opacity: 0.8 }}>
-          both have approved leave in Week 2–3.
-        </span>
       </div>
     </div>
   );

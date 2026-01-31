@@ -65,9 +65,16 @@ const s67 = data.map((d) => d.s6 + d.s7);
 const corrLeaversHigh = pearson(leavers, s910);
 const corrLeaversLow = pearson(leavers, s67);
 
-export const EnpsBucketsVsTurnoverChart: React.FC = () => {
+interface EnpsBucketsVsTurnoverChartProps {
+  layout?: "desktop" | "mobile";
+}
+
+export const EnpsBucketsVsTurnoverChart: React.FC<EnpsBucketsVsTurnoverChartProps> = ({
+  layout = "desktop",
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const isMobile = layout === "mobile";
 
   // Animation progress
   const drawProgress = spring({
@@ -82,10 +89,10 @@ export const EnpsBucketsVsTurnoverChart: React.FC = () => {
     config: { mass: 1, damping: 18, stiffness: 60 },
   });
 
-  // Chart dimensions
-  const topChartWidth = 520;
-  const topChartHeight = 140;
-  const bottomChartHeight = 80;
+  // Chart dimensions - mobile uses smaller sizes
+  const topChartWidth = isMobile ? 320 : 520;
+  const topChartHeight = isMobile ? 100 : 140;
+  const bottomChartHeight = isMobile ? 60 : 80;
   const padding = { top: 10, right: 30, bottom: 25, left: 35 };
 
   const innerWidth = topChartWidth - padding.left - padding.right;
@@ -136,10 +143,10 @@ export const EnpsBucketsVsTurnoverChart: React.FC = () => {
       <div
         style={{
           fontFamily: theme.chart.title.fontFamily,
-          fontSize: theme.chart.title.fontSize,
+          fontSize: isMobile ? theme.chart.mobile.title.fontSize : theme.chart.title.fontSize,
           fontWeight: theme.chart.title.fontWeight,
           color: theme.chart.title.color,
-          marginBottom: 6,
+          marginBottom: isMobile ? 4 : 6,
         }}
       >
         eNPS Score Trends vs. Turnover
@@ -148,9 +155,9 @@ export const EnpsBucketsVsTurnoverChart: React.FC = () => {
       {/* Micro-summary */}
       <div
         style={{
-          fontSize: theme.typography.size.small,
+          fontSize: isMobile ? 10 : theme.typography.size.small,
           color: theme.colors.text.secondary,
-          marginBottom: 12,
+          marginBottom: isMobile ? 8 : 12,
           lineHeight: 1.4,
         }}
       >

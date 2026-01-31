@@ -30,6 +30,7 @@ interface EnpsTrendsAndTurnoverCardProps {
   hideTitle?: boolean;
   compact?: boolean;
   embedded?: boolean; // When true, removes card styling from inner cards for nesting
+  layout?: "desktop" | "mobile";
 }
 
 export const EnpsTrendsAndTurnoverCard: React.FC<EnpsTrendsAndTurnoverCardProps> = ({
@@ -41,9 +42,11 @@ export const EnpsTrendsAndTurnoverCard: React.FC<EnpsTrendsAndTurnoverCardProps>
   hideTitle = false,
   compact = false,
   embedded = false,
+  layout = "desktop",
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const isMobile = layout === "mobile";
 
   const drawProgress = spring({
     frame,
@@ -55,8 +58,12 @@ export const EnpsTrendsAndTurnoverCard: React.FC<EnpsTrendsAndTurnoverCardProps>
   const noCardStyle = compact || embedded;
 
   // Chart dimensions using theme tokens
-  const chartWidth = compact ? theme.chart.compact.width : theme.chart.width;
-  const chartHeight = compact ? 100 : 140;
+  const chartWidth = compact
+    ? theme.chart.compact.width
+    : isMobile
+      ? theme.chart.mobile.width
+      : theme.chart.width;
+  const chartHeight = compact ? 100 : isMobile ? 90 : 140;
   const padding = theme.chart.line.padding;
   const innerWidth = chartWidth - padding.left - padding.right;
   const innerHeight = chartHeight - padding.top - padding.bottom;
@@ -101,14 +108,22 @@ export const EnpsTrendsAndTurnoverCard: React.FC<EnpsTrendsAndTurnoverCardProps>
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
-            marginBottom: compact ? theme.chart.compact.title.marginBottom : theme.chart.title.marginBottom,
+            marginBottom: compact
+              ? theme.chart.compact.title.marginBottom
+              : isMobile
+                ? theme.chart.mobile.title.marginBottom
+                : theme.chart.title.marginBottom,
           }}
         >
           {!hideTitle && (
             <h3
               style={{
                 fontFamily: theme.chart.title.fontFamily,
-                fontSize: compact ? theme.chart.compact.title.fontSize : theme.chart.title.fontSize,
+                fontSize: compact
+                  ? theme.chart.compact.title.fontSize
+                  : isMobile
+                    ? theme.chart.mobile.title.fontSize
+                    : theme.chart.title.fontSize,
                 fontWeight: theme.chart.title.fontWeight,
                 color: theme.chart.title.color,
                 margin: 0,
@@ -119,12 +134,12 @@ export const EnpsTrendsAndTurnoverCard: React.FC<EnpsTrendsAndTurnoverCardProps>
           )}
 
           {/* Legend - Vertical Stack to match other charts */}
-          <div style={{ display: "flex", flexDirection: compact ? "row" : "column", gap: compact ? theme.chart.compact.legend.gap : theme.chart.legend.gap }}>
-            <div style={{ display: "flex", alignItems: "center", gap: compact ? theme.chart.compact.legend.itemGap : theme.chart.legend.itemGap }}>
+          <div style={{ display: "flex", flexDirection: compact || isMobile ? "row" : "column", gap: compact || isMobile ? theme.chart.mobile.legend.gap : theme.chart.legend.gap }}>
+            <div style={{ display: "flex", alignItems: "center", gap: compact || isMobile ? theme.chart.mobile.legend.itemGap : theme.chart.legend.itemGap }}>
               <div
                 style={{
-                  width: compact ? theme.chart.compact.legend.indicator.pill.width : theme.chart.legend.indicator.pill.width,
-                  height: compact ? theme.chart.compact.legend.indicator.pill.height : theme.chart.legend.indicator.pill.height,
+                  width: compact || isMobile ? theme.chart.mobile.legend.indicator.pill.width : theme.chart.legend.indicator.pill.width,
+                  height: compact || isMobile ? theme.chart.mobile.legend.indicator.pill.height : theme.chart.legend.indicator.pill.height,
                   borderRadius: theme.chart.legend.indicator.pill.borderRadius,
                   backgroundColor: theme.colors.brand.primary,
                 }}
@@ -132,7 +147,7 @@ export const EnpsTrendsAndTurnoverCard: React.FC<EnpsTrendsAndTurnoverCardProps>
               <span
                 style={{
                   fontFamily: theme.chart.legend.fontFamily,
-                  fontSize: compact ? theme.chart.compact.legend.fontSize : theme.chart.legend.fontSize,
+                  fontSize: compact || isMobile ? theme.chart.mobile.legend.fontSize : theme.chart.legend.fontSize,
                   fontWeight: theme.chart.legend.fontWeight,
                   color: theme.chart.legend.color,
                 }}
@@ -140,11 +155,11 @@ export const EnpsTrendsAndTurnoverCard: React.FC<EnpsTrendsAndTurnoverCardProps>
                 9–10s
               </span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: compact ? theme.chart.compact.legend.itemGap : theme.chart.legend.itemGap }}>
+            <div style={{ display: "flex", alignItems: "center", gap: compact || isMobile ? theme.chart.mobile.legend.itemGap : theme.chart.legend.itemGap }}>
               <div
                 style={{
-                  width: compact ? theme.chart.compact.legend.indicator.pill.width : theme.chart.legend.indicator.pill.width,
-                  height: compact ? theme.chart.compact.legend.indicator.pill.height : theme.chart.legend.indicator.pill.height,
+                  width: compact || isMobile ? theme.chart.mobile.legend.indicator.pill.width : theme.chart.legend.indicator.pill.width,
+                  height: compact || isMobile ? theme.chart.mobile.legend.indicator.pill.height : theme.chart.legend.indicator.pill.height,
                   borderRadius: theme.chart.legend.indicator.pill.borderRadius,
                   backgroundColor: theme.colors.charts.orange,
                 }}
@@ -152,7 +167,7 @@ export const EnpsTrendsAndTurnoverCard: React.FC<EnpsTrendsAndTurnoverCardProps>
               <span
                 style={{
                   fontFamily: theme.chart.legend.fontFamily,
-                  fontSize: compact ? theme.chart.compact.legend.fontSize : theme.chart.legend.fontSize,
+                  fontSize: compact || isMobile ? theme.chart.mobile.legend.fontSize : theme.chart.legend.fontSize,
                   fontWeight: theme.chart.legend.fontWeight,
                   color: theme.chart.legend.color,
                 }}
@@ -206,7 +221,7 @@ export const EnpsTrendsAndTurnoverCard: React.FC<EnpsTrendsAndTurnoverCardProps>
               y={chartHeight - theme.chart.line.labelOffset}
               textAnchor="middle"
               fontFamily={theme.chart.axisLabel.fontFamily}
-              fontSize={compact ? theme.chart.compact.axisLabel.fontSize : theme.chart.axisLabel.fontSize}
+              fontSize={compact || isMobile ? theme.chart.mobile.axisLabel.fontSize : theme.chart.axisLabel.fontSize}
               fill={theme.chart.axisLabel.color}
             >
               {data[idx].month}
@@ -221,25 +236,8 @@ export const EnpsTrendsAndTurnoverCard: React.FC<EnpsTrendsAndTurnoverCardProps>
         xLabels={turnoverXLabels}
         compact={compact}
         embedded={embedded}
+        layout={layout}
       />
-
-      {/* Insight text */}
-      <div
-        style={{
-          fontFamily: theme.chart.insight.fontFamily,
-          fontSize: compact ? theme.chart.compact.insight.fontSize : theme.chart.insight.fontSize,
-          color: theme.chart.insight.color,
-          lineHeight: theme.chart.insight.lineHeight,
-        }}
-      >
-        <span style={{ fontWeight: theme.chart.insight.fontWeight }}>
-          9–10s dip when leavers spike (Oct–Nov), while 6–7s rise.
-        </span>
-        <br />
-        <span style={{ fontSize: compact ? theme.chart.compact.insight.fontSizeSmall : theme.chart.insight.fontSizeSmall, opacity: 0.8 }}>
-          Correlation looks strong (illustrative) — worth slicing by team next. Correlation ≠ causation.
-        </span>
-      </div>
     </div>
   );
 };

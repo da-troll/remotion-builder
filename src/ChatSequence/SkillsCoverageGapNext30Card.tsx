@@ -28,6 +28,7 @@ interface SkillsCoverageGapNext30CardProps {
   hideTitle?: boolean;
   compact?: boolean;
   embedded?: boolean;
+  layout?: "desktop" | "mobile";
 }
 
 export const SkillsCoverageGapNext30Card: React.FC<SkillsCoverageGapNext30CardProps> = ({
@@ -35,9 +36,11 @@ export const SkillsCoverageGapNext30Card: React.FC<SkillsCoverageGapNext30CardPr
   hideTitle = false,
   compact = false,
   embedded = false,
+  layout = "desktop",
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const isMobile = layout === "mobile";
 
   const noCardStyle = compact || embedded;
 
@@ -56,25 +59,25 @@ export const SkillsCoverageGapNext30Card: React.FC<SkillsCoverageGapNext30CardPr
 
   const headerStyle: React.CSSProperties = {
     fontFamily: theme.chart.legend.fontFamily,
-    fontSize: compact ? 10 : 11,
+    fontSize: compact || isMobile ? 9 : 11,
     fontWeight: 600,
     color: theme.chart.legend.color,
     textAlign: "left",
-    padding: "6px 10px",
+    padding: isMobile ? "4px 6px" : "6px 10px",
     borderBottom: `1px solid ${theme.colors.surface.outline}`,
   };
 
   const cellStyle: React.CSSProperties = {
     fontFamily: theme.typography.fontFamily.body,
-    fontSize: compact ? 11 : 12,
+    fontSize: compact || isMobile ? 9 : 12,
     fontWeight: 400,
     color: theme.colors.text.default,
-    padding: "8px 10px",
+    padding: isMobile ? "6px 6px" : "8px 10px",
     borderBottom: `1px solid ${theme.colors.surface.outline}`,
   };
 
   // Gap strip dimensions
-  const stripWidth = compact ? 280 : 340;
+  const stripWidth = compact ? 280 : isMobile ? 200 : 340;
   const stripHeight = compact ? 16 : 20;
   const weekWidth = stripWidth / 4;
 
@@ -272,25 +275,6 @@ export const SkillsCoverageGapNext30Card: React.FC<SkillsCoverageGapNext30CardPr
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Insight */}
-      <div
-        style={{
-          fontFamily: theme.chart.insight.fontFamily,
-          fontSize: compact ? theme.chart.compact.insight.fontSize : theme.chart.insight.fontSize,
-          color: theme.chart.insight.color,
-          lineHeight: theme.chart.insight.lineHeight,
-          marginTop: 16,
-        }}
-      >
-        <span style={{ fontWeight: theme.chart.insight.fontWeight }}>
-          16 total gap days across 3 critical skills.
-        </span>
-        {" "}
-        <span style={{ opacity: 0.8 }}>
-          Week 3 is highest risk.
-        </span>
       </div>
     </div>
   );

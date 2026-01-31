@@ -25,6 +25,7 @@ interface CapacityStressSignalCardProps {
   hideTitle?: boolean;
   compact?: boolean;
   embedded?: boolean;
+  layout?: "desktop" | "mobile";
 }
 
 export const CapacityStressSignalCard: React.FC<CapacityStressSignalCardProps> = ({
@@ -33,9 +34,11 @@ export const CapacityStressSignalCard: React.FC<CapacityStressSignalCardProps> =
   hideTitle = false,
   compact = false,
   embedded = false,
+  layout = "desktop",
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const isMobile = layout === "mobile";
 
   // Stagger line drawing: line 1 first, line 2 delayed by 6 frames
   const progress1 = spring({
@@ -54,8 +57,12 @@ export const CapacityStressSignalCard: React.FC<CapacityStressSignalCardProps> =
   const noCardStyle = compact || embedded;
 
   // Chart dimensions
-  const chartWidth = compact ? theme.chart.compact.contentWidth : theme.chart.contentWidth;
-  const chartHeight = compact ? 120 : 160;
+  const chartWidth = compact
+    ? theme.chart.compact.contentWidth
+    : isMobile
+      ? theme.chart.mobile.contentWidth
+      : theme.chart.contentWidth;
+  const chartHeight = compact ? 120 : isMobile ? 100 : 160;
   const padding = theme.chart.line.padding;
   const innerWidth = chartWidth - padding.left - padding.right;
   const innerHeight = chartHeight - padding.top - padding.bottom;
@@ -85,81 +92,99 @@ export const CapacityStressSignalCard: React.FC<CapacityStressSignalCardProps> =
         fontFamily: theme.typography.fontFamily.body,
       }}
     >
-      {/* Title + Subtitle */}
-      {!hideTitle && (
-        <div style={{ marginBottom: compact ? theme.chart.compact.title.marginBottom : theme.chart.title.marginBottom }}>
-          <h3
-            style={{
-              fontFamily: theme.chart.title.fontFamily,
-              fontSize: compact ? theme.chart.compact.title.fontSize : theme.chart.title.fontSize,
-              fontWeight: theme.chart.title.fontWeight,
-              color: theme.chart.title.color,
-              margin: 0,
-            }}
-          >
-            {title}
-          </h3>
-          <div
-            style={{
-              fontFamily: theme.chart.legend.fontFamily,
-              fontSize: compact ? theme.chart.compact.legend.fontSize : theme.chart.legend.fontSize,
-              color: theme.chart.legend.color,
-              marginTop: 4,
-              opacity: 0.8,
-            }}
-          >
-            {subtitle}
-          </div>
-        </div>
-      )}
-
-      {/* Legend */}
+      {/* Header: Title + Legend */}
       <div
         style={{
           display: "flex",
-          gap: compact ? theme.chart.compact.legend.gap : theme.chart.legend.horizontalGap,
-          marginBottom: compact ? theme.chart.compact.title.marginBottom : 12,
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          marginBottom: compact
+            ? theme.chart.compact.title.marginBottom
+            : isMobile
+              ? theme.chart.mobile.title.marginBottom
+              : theme.chart.title.marginBottom,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: compact ? theme.chart.compact.legend.itemGap : theme.chart.legend.itemGap }}>
-          <div
-            style={{
-              width: compact ? theme.chart.compact.legend.indicator.pill.width : theme.chart.legend.indicator.pill.width,
-              height: compact ? theme.chart.compact.legend.indicator.pill.height : theme.chart.legend.indicator.pill.height,
-              borderRadius: theme.chart.legend.indicator.pill.borderRadius,
-              backgroundColor: theme.colors.charts.teal,
-            }}
-          />
-          <span
-            style={{
-              fontFamily: theme.chart.legend.fontFamily,
-              fontSize: compact ? theme.chart.compact.legend.fontSize : theme.chart.legend.fontSize,
-              fontWeight: theme.chart.legend.fontWeight,
-              color: theme.chart.legend.color,
-            }}
-          >
-            Workload sentiment
-          </span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: compact ? theme.chart.compact.legend.itemGap : theme.chart.legend.itemGap }}>
-          <div
-            style={{
-              width: compact ? theme.chart.compact.legend.indicator.pill.width : theme.chart.legend.indicator.pill.width,
-              height: compact ? theme.chart.compact.legend.indicator.pill.height : theme.chart.legend.indicator.pill.height,
-              borderRadius: theme.chart.legend.indicator.pill.borderRadius,
-              backgroundColor: theme.colors.charts.orange,
-            }}
-          />
-          <span
-            style={{
-              fontFamily: theme.chart.legend.fontFamily,
-              fontSize: compact ? theme.chart.compact.legend.fontSize : theme.chart.legend.fontSize,
-              fontWeight: theme.chart.legend.fontWeight,
-              color: theme.chart.legend.color,
-            }}
-          >
-            Sick leave index
-          </span>
+        {/* Title + Subtitle */}
+        {!hideTitle && (
+          <div>
+            <h3
+              style={{
+                fontFamily: theme.chart.title.fontFamily,
+                fontSize: compact
+                  ? theme.chart.compact.title.fontSize
+                  : isMobile
+                    ? theme.chart.mobile.title.fontSize
+                    : theme.chart.title.fontSize,
+                fontWeight: theme.chart.title.fontWeight,
+                color: theme.chart.title.color,
+                margin: 0,
+              }}
+            >
+              {title}
+            </h3>
+            <div
+              style={{
+                fontFamily: theme.chart.legend.fontFamily,
+                fontSize: compact || isMobile ? theme.chart.mobile.legend.fontSize : theme.chart.legend.fontSize,
+                color: theme.chart.legend.color,
+                marginTop: isMobile ? 2 : 4,
+                opacity: 0.8,
+              }}
+            >
+              {subtitle}
+            </div>
+          </div>
+        )}
+
+        {/* Legend - top right, vertically stacked */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: compact || isMobile ? theme.chart.mobile.legend.gap : theme.chart.legend.gap,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: compact || isMobile ? theme.chart.mobile.legend.itemGap : theme.chart.legend.itemGap }}>
+            <div
+              style={{
+                width: compact || isMobile ? theme.chart.mobile.legend.indicator.pill.width : theme.chart.legend.indicator.pill.width,
+                height: compact || isMobile ? theme.chart.mobile.legend.indicator.pill.height : theme.chart.legend.indicator.pill.height,
+                borderRadius: theme.chart.legend.indicator.pill.borderRadius,
+                backgroundColor: theme.colors.charts.teal,
+              }}
+            />
+            <span
+              style={{
+                fontFamily: theme.chart.legend.fontFamily,
+                fontSize: compact || isMobile ? theme.chart.mobile.legend.fontSize : theme.chart.legend.fontSize,
+                fontWeight: theme.chart.legend.fontWeight,
+                color: theme.chart.legend.color,
+              }}
+            >
+              Workload sentiment
+            </span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: compact || isMobile ? theme.chart.mobile.legend.itemGap : theme.chart.legend.itemGap }}>
+            <div
+              style={{
+                width: compact || isMobile ? theme.chart.mobile.legend.indicator.pill.width : theme.chart.legend.indicator.pill.width,
+                height: compact || isMobile ? theme.chart.mobile.legend.indicator.pill.height : theme.chart.legend.indicator.pill.height,
+                borderRadius: theme.chart.legend.indicator.pill.borderRadius,
+                backgroundColor: theme.colors.charts.orange,
+              }}
+            />
+            <span
+              style={{
+                fontFamily: theme.chart.legend.fontFamily,
+                fontSize: compact || isMobile ? theme.chart.mobile.legend.fontSize : theme.chart.legend.fontSize,
+                fontWeight: theme.chart.legend.fontWeight,
+                color: theme.chart.legend.color,
+              }}
+            >
+              Sick leave index
+            </span>
+          </div>
         </div>
       </div>
 
@@ -214,7 +239,7 @@ export const CapacityStressSignalCard: React.FC<CapacityStressSignalCardProps> =
               y={chartHeight - theme.chart.line.labelOffset}
               textAnchor="middle"
               fontFamily={theme.chart.axisLabel.fontFamily}
-              fontSize={compact ? theme.chart.compact.axisLabel.fontSize : theme.chart.axisLabel.fontSize}
+              fontSize={compact || isMobile ? theme.chart.mobile.axisLabel.fontSize : theme.chart.axisLabel.fontSize}
               fill={theme.chart.axisLabel.color}
             >
               {label}
@@ -222,25 +247,6 @@ export const CapacityStressSignalCard: React.FC<CapacityStressSignalCardProps> =
           );
         })}
       </svg>
-
-      {/* Insight text */}
-      <div
-        style={{
-          fontFamily: theme.chart.insight.fontFamily,
-          fontSize: compact ? theme.chart.compact.insight.fontSize : theme.chart.insight.fontSize,
-          color: theme.chart.insight.color,
-          lineHeight: theme.chart.insight.lineHeight,
-          marginTop: 12,
-        }}
-      >
-        <span style={{ fontWeight: theme.chart.insight.fontWeight }}>
-          Workload drops → sick leave rises ~4 weeks later.
-        </span>
-        {" "}
-        <span style={{ opacity: 0.8 }}>
-          Vacation usage dips at the same time.
-        </span>
-      </div>
     </div>
   );
 };

@@ -13,6 +13,7 @@ interface ReviewDriverDeltasCardProps {
   hideTitle?: boolean;
   compact?: boolean;
   embedded?: boolean;
+  layout?: "desktop" | "mobile";
 }
 
 export const ReviewDriverDeltasCard: React.FC<ReviewDriverDeltasCardProps> = ({
@@ -20,28 +21,27 @@ export const ReviewDriverDeltasCard: React.FC<ReviewDriverDeltasCardProps> = ({
   hideTitle = false,
   compact = false,
   embedded = false,
+  layout = "desktop",
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const isMobile = layout === "mobile";
 
   const noCardStyle = compact || embedded;
 
   // Bar chart dimensions
-  const chartWidth = compact ? theme.chart.compact.contentWidth : theme.chart.contentWidth;
-  const chartHeight = compact ? 80 : 100;
+  const chartWidth = compact
+    ? theme.chart.compact.contentWidth
+    : isMobile
+      ? theme.chart.mobile.contentWidth
+      : theme.chart.contentWidth;
+  const chartHeight = compact ? 80 : isMobile ? 70 : 100;
   const padding = { top: 10, right: 40, bottom: 10, left: 130 };
   const innerWidth = chartWidth - padding.left - padding.right;
   const innerHeight = chartHeight - padding.top - padding.bottom;
 
   const maxAbsDelta = Math.max(...driverData.map((d) => Math.abs(d.delta)));
   const barHeight = innerHeight / driverData.length - 8;
-
-  // Insight text entrance
-  const insightProgress = spring({
-    frame: Math.max(0, frame - 15),
-    fps,
-    config: { stiffness: 100, damping: 18 },
-  });
 
   return (
     <div
@@ -137,27 +137,6 @@ export const ReviewDriverDeltasCard: React.FC<ReviewDriverDeltasCardProps> = ({
           );
         })}
       </svg>
-
-      {/* Insight sentence */}
-      <div
-        style={{
-          fontFamily: theme.chart.insight.fontFamily,
-          fontSize: compact ? theme.chart.compact.insight.fontSize : theme.chart.insight.fontSize,
-          color: theme.chart.insight.color,
-          lineHeight: theme.chart.insight.lineHeight,
-          marginTop: 12,
-          opacity: interpolate(insightProgress, [0, 1], [0, 1]),
-          transform: `translateY(${interpolate(insightProgress, [0, 1], [6, 0])}px)`,
-        }}
-      >
-        <span style={{ fontWeight: theme.chart.insight.fontWeight }}>
-          Biggest drops cluster around clarity + fairness.
-        </span>
-        {" "}
-        <span style={{ opacity: 0.8 }}>
-          Recommend manager calibration + clearer rubric.
-        </span>
-      </div>
     </div>
   );
 };

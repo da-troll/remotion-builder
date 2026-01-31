@@ -30,6 +30,7 @@ interface PolicyImpactOverviewCardProps {
   hideTitle?: boolean;
   compact?: boolean;
   embedded?: boolean;
+  layout?: "desktop" | "mobile";
 }
 
 export const PolicyImpactOverviewCard: React.FC<PolicyImpactOverviewCardProps> = ({
@@ -38,9 +39,11 @@ export const PolicyImpactOverviewCard: React.FC<PolicyImpactOverviewCardProps> =
   hideTitle = false,
   compact = false,
   embedded = false,
+  layout = "desktop",
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const isMobile = layout === "mobile";
 
   const noCardStyle = compact || embedded;
 
@@ -59,7 +62,11 @@ export const PolicyImpactOverviewCard: React.FC<PolicyImpactOverviewCardProps> =
   });
 
   // Dimensions
-  const chartWidth = compact ? theme.chart.compact.contentWidth : theme.chart.contentWidth;
+  const chartWidth = compact
+    ? theme.chart.compact.contentWidth
+    : isMobile
+      ? theme.chart.mobile.contentWidth
+      : theme.chart.contentWidth;
 
   // Bar chart section
   const barChartHeight = compact ? 70 : 90;
@@ -331,21 +338,6 @@ export const PolicyImpactOverviewCard: React.FC<PolicyImpactOverviewCardProps> =
             );
           })}
         </svg>
-      </div>
-
-      {/* Insight text */}
-      <div
-        style={{
-          fontFamily: theme.chart.insight.fontFamily,
-          fontSize: compact ? theme.chart.compact.insight.fontSize : theme.chart.insight.fontSize,
-          color: theme.chart.insight.color,
-          lineHeight: theme.chart.insight.lineHeight,
-          marginTop: 12,
-        }}
-      >
-        <span style={{ fontWeight: theme.chart.insight.fontWeight }}>
-          Adoption increased immediately; clarity improved gradually.
-        </span>
       </div>
     </div>
   );

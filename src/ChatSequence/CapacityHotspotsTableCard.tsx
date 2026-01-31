@@ -15,6 +15,7 @@ interface CapacityHotspotsTableCardProps {
   hideTitle?: boolean;
   compact?: boolean;
   embedded?: boolean;
+  layout?: "desktop" | "mobile";
 }
 
 // Delta pill component
@@ -52,9 +53,11 @@ export const CapacityHotspotsTableCard: React.FC<CapacityHotspotsTableCardProps>
   hideTitle = false,
   compact = false,
   embedded = false,
+  layout = "desktop",
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const isMobile = layout === "mobile";
 
   const noCardStyle = compact || embedded;
 
@@ -70,20 +73,20 @@ export const CapacityHotspotsTableCard: React.FC<CapacityHotspotsTableCardProps>
 
   const headerStyle: React.CSSProperties = {
     fontFamily: theme.chart.legend.fontFamily,
-    fontSize: compact ? 10 : 11,
+    fontSize: compact || isMobile ? 9 : 11,
     fontWeight: 600,
     color: theme.chart.legend.color,
     textAlign: "left",
-    padding: "8px 12px",
+    padding: isMobile ? "6px 8px" : "8px 12px",
     borderBottom: `1px solid ${theme.colors.surface.outline}`,
   };
 
   const cellStyle: React.CSSProperties = {
     fontFamily: theme.typography.fontFamily.body,
-    fontSize: compact ? 12 : 13,
+    fontSize: compact || isMobile ? 10 : 13,
     fontWeight: 400,
     color: theme.colors.text.default,
-    padding: "10px 12px",
+    padding: isMobile ? "6px 8px" : "10px 12px",
     borderBottom: `1px solid ${theme.colors.surface.outline}`,
   };
 
@@ -103,11 +106,19 @@ export const CapacityHotspotsTableCard: React.FC<CapacityHotspotsTableCardProps>
         <h3
           style={{
             fontFamily: theme.chart.title.fontFamily,
-            fontSize: compact ? theme.chart.compact.title.fontSize : theme.chart.title.fontSize,
+            fontSize: compact
+              ? theme.chart.compact.title.fontSize
+              : isMobile
+                ? theme.chart.mobile.title.fontSize
+                : theme.chart.title.fontSize,
             fontWeight: theme.chart.title.fontWeight,
             color: theme.chart.title.color,
             margin: 0,
-            marginBottom: compact ? theme.chart.compact.title.marginBottom : theme.chart.title.marginBottom,
+            marginBottom: compact
+              ? theme.chart.compact.title.marginBottom
+              : isMobile
+                ? theme.chart.mobile.title.marginBottom
+                : theme.chart.title.marginBottom,
           }}
         >
           {title}
@@ -160,19 +171,6 @@ export const CapacityHotspotsTableCard: React.FC<CapacityHotspotsTableCardProps>
           })}
         </tbody>
       </table>
-
-      {/* Footer note */}
-      <div
-        style={{
-          fontFamily: theme.chart.insight.fontFamily,
-          fontSize: compact ? theme.chart.compact.insight.fontSizeSmall : theme.chart.insight.fontSizeSmall,
-          color: theme.chart.legend.color,
-          marginTop: 12,
-          opacity: 0.8,
-        }}
-      >
-        Sorted by workload drop + sick leave rise. Vacation backlog = % with &gt;10 days remaining.
-      </div>
     </div>
   );
 };

@@ -18,6 +18,7 @@ interface SkillsCoverageRiskCardProps {
   hideTitle?: boolean;
   compact?: boolean;
   embedded?: boolean;
+  layout?: "desktop" | "mobile";
 }
 
 export const SkillsCoverageRiskCard: React.FC<SkillsCoverageRiskCardProps> = ({
@@ -25,15 +26,21 @@ export const SkillsCoverageRiskCard: React.FC<SkillsCoverageRiskCardProps> = ({
   hideTitle = false,
   compact = false,
   embedded = false,
+  layout = "desktop",
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const isMobile = layout === "mobile";
 
   const noCardStyle = compact || embedded;
 
   // Chart dimensions
-  const chartWidth = compact ? theme.chart.compact.contentWidth : theme.chart.contentWidth;
-  const chartHeight = compact ? 180 : 220;
+  const chartWidth = compact
+    ? theme.chart.compact.contentWidth
+    : isMobile
+      ? theme.chart.mobile.contentWidth
+      : theme.chart.contentWidth;
+  const chartHeight = compact ? 180 : isMobile ? 150 : 220;
   const padding = { top: 10, right: 40, bottom: 30, left: 180 };
   const innerWidth = chartWidth - padding.left - padding.right;
   const innerHeight = chartHeight - padding.top - padding.bottom;
@@ -217,21 +224,6 @@ export const SkillsCoverageRiskCard: React.FC<SkillsCoverageRiskCardProps> = ({
           </text>
         ))}
       </svg>
-
-      {/* Insight */}
-      <div
-        style={{
-          fontFamily: theme.chart.insight.fontFamily,
-          fontSize: compact ? theme.chart.compact.insight.fontSize : theme.chart.insight.fontSize,
-          color: theme.chart.insight.color,
-          lineHeight: theme.chart.insight.lineHeight,
-          marginTop: 8,
-        }}
-      >
-        <span style={{ fontWeight: theme.chart.insight.fontWeight }}>
-          4 critical skills have 1–2 person coverage — single point of failure risk.
-        </span>
-      </div>
     </div>
   );
 };

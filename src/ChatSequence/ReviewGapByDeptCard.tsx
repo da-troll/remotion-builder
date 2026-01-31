@@ -18,6 +18,7 @@ interface ReviewGapByDeptCardProps {
   hideTitle?: boolean;
   compact?: boolean;
   embedded?: boolean;
+  layout?: "desktop" | "mobile";
 }
 
 export const ReviewGapByDeptCard: React.FC<ReviewGapByDeptCardProps> = ({
@@ -25,15 +26,21 @@ export const ReviewGapByDeptCard: React.FC<ReviewGapByDeptCardProps> = ({
   hideTitle = false,
   compact = false,
   embedded = false,
+  layout = "desktop",
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const isMobile = layout === "mobile";
 
   const noCardStyle = compact || embedded;
 
   // Chart dimensions
-  const chartWidth = compact ? theme.chart.compact.contentWidth : theme.chart.contentWidth;
-  const chartHeight = compact ? 180 : 220;
+  const chartWidth = compact
+    ? theme.chart.compact.contentWidth
+    : isMobile
+      ? theme.chart.mobile.contentWidth
+      : theme.chart.contentWidth;
+  const chartHeight = compact ? 180 : isMobile ? 150 : 220;
   const padding = { top: 10, right: 40, bottom: 20, left: 120 };
   const innerWidth = chartWidth - padding.left - padding.right;
   const innerHeight = chartHeight - padding.top - padding.bottom;
@@ -152,19 +159,6 @@ export const ReviewGapByDeptCard: React.FC<ReviewGapByDeptCardProps> = ({
           );
         })}
       </svg>
-
-      {/* Insight note */}
-      <div
-        style={{
-          fontFamily: theme.chart.insight.fontFamily,
-          fontSize: compact ? theme.chart.compact.insight.fontSizeSmall : theme.chart.insight.fontSizeSmall,
-          color: theme.chart.legend.color,
-          marginTop: 8,
-          opacity: 0.8,
-        }}
-      >
-        Operations and Customer Success show the largest gaps — worth investigating.
-      </div>
     </div>
   );
 };
