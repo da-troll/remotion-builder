@@ -42,7 +42,7 @@ export const JoinersLeaversChart: React.FC<JoinersLeaversChartProps> = ({
   const progress = spring({
     frame,
     fps,
-    config: { mass: 1, damping: 15, stiffness: 80 },
+    config: theme.chart.animation.spring,
   });
 
   // Chart dimensions using theme tokens (matching eNPS chart structure)

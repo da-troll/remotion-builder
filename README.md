@@ -156,6 +156,14 @@ export const theme = {
     fadeIn: 30,      // 0.5s
     stagger: 10,     // delay between items
   },
+  chart: {
+    // Chart-specific tokens
+    line: { strokeWidth: 4, tension: 0.3 },
+    animation: {
+      spring: { mass: 1, damping: 18, stiffness: 50 },
+    },
+    compact: { /* smaller variants for dense layouts */ },
+  },
 };
 ```
 
@@ -165,15 +173,17 @@ export const theme = {
 
 ```typescript
 import { spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { theme } from "./theme";
 
 const MyComponent: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
+  // Use theme config for consistent animations
   const scale = spring({
     frame,
     fps,
-    config: { damping: 15, stiffness: 80 },
+    config: theme.chart.animation.spring,
   });
 
   return <div style={{ transform: `scale(${scale})` }}>Hello</div>;
@@ -240,11 +250,13 @@ npx remotion render
 ## Best Practices
 
 1. **Centralize timing** - Use `theme.timing` constants instead of magic numbers
-2. **Share content** - Put reusable props in `messages.ts` to avoid duplication
-3. **Group compositions** - Use `<Folder>` to organize by category, platform, or project
-4. **Type your props** - Use Zod schemas for type-safe composition props
-5. **Use springs** - Prefer `spring()` over linear interpolation for natural motion
-6. **Test at target FPS** - Always preview at your target frame rate (30 or 60fps)
+2. **Centralize animations** - Use `theme.chart.animation.spring` for consistent spring configs
+3. **Share content** - Put reusable props in `messages.ts` to avoid duplication
+4. **Group compositions** - Use `<Folder>` to organize by category, platform, or project
+5. **Type your props** - Use Zod schemas for type-safe composition props
+6. **Use springs** - Prefer `spring()` over linear interpolation for natural motion
+7. **Use compact/embedded props** - Use `compact` for dense layouts, `embedded` for nested charts
+8. **Test at target FPS** - Always preview at your target frame rate (30 or 60fps)
 
 ## Troubleshooting
 

@@ -15,8 +15,8 @@ const mixHex = (hex1: string, hex2: string, t: number): string => {
   return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
 };
 
-// eNPS score distribution data (0-10)
-const scoreData = [
+// Default eNPS score distribution data (0-10)
+const defaultScoreData = [
   { score: 0, count: 2 },
   { score: 1, count: 1 },
   { score: 2, count: 3 },
@@ -29,6 +29,14 @@ const scoreData = [
   { score: 9, count: 32 },
   { score: 10, count: 28 },
 ];
+
+interface EnpsDistributionChartProps {
+  title?: string;
+  scoreData?: { score: number; count: number }[];
+  hideTitle?: boolean;
+  compact?: boolean;
+  embedded?: boolean; // When true, removes card styling (bg, shadow, radius) for nesting in another card
+}
 
 // Colors
 const colors = {
@@ -44,25 +52,33 @@ const getScoreColor = (score: number): string => {
   return "url(#grad-detractors)";
 };
 
-// Calculate category totals
-const totalResponses = scoreData.reduce((sum, d) => sum + d.count, 0);
-const promoters = scoreData.filter((d) => d.score >= 9).reduce((sum, d) => sum + d.count, 0);
-const passives = scoreData.filter((d) => d.score >= 7 && d.score <= 8).reduce((sum, d) => sum + d.count, 0);
-const detractors = scoreData.filter((d) => d.score <= 6).reduce((sum, d) => sum + d.count, 0);
+export const EnpsDistributionChart: React.FC<EnpsDistributionChartProps> = ({
+  title = "eNPS Distribution",
+  scoreData = defaultScoreData,
+  hideTitle = false,
+  compact = false,
+  embedded = false,
+}) => {
+  // Calculate category totals
+  const totalResponses = scoreData.reduce((sum, d) => sum + d.count, 0);
+  const promoters = scoreData.filter((d) => d.score >= 9).reduce((sum, d) => sum + d.count, 0);
+  const passives = scoreData.filter((d) => d.score >= 7 && d.score <= 8).reduce((sum, d) => sum + d.count, 0);
+  const detractors = scoreData.filter((d) => d.score <= 6).reduce((sum, d) => sum + d.count, 0);
 
-const promotersPct = Math.round((promoters / totalResponses) * 100);
-const passivesPct = Math.round((passives / totalResponses) * 100);
-const detractorsPct = Math.round((detractors / totalResponses) * 100);
-
-export const EnpsDistributionChart: React.FC = () => {
+  const promotersPct = Math.round((promoters / totalResponses) * 100);
+  const passivesPct = Math.round((passives / totalResponses) * 100);
+  const detractorsPct = Math.round((detractors / totalResponses) * 100);
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
+  // When embedded or compact, remove card styling
+  const noCardStyle = compact || embedded;
+
   // Chart dimensions (width from theme, height flexible for content)
-  const chartWidth = theme.chart.width;
-  const chartHeight = 220;
+  const chartWidth = compact ? theme.chart.compact.width : theme.chart.width;
+  const chartHeight = compact ? 160 : 220;
   const padding = { top: 20, right: 20, bottom: 50, left: 40 };
-  const barWidth = 24;
+  const barWidth = compact ? 18 : 24;
 
   const innerWidth = chartWidth - padding.left - padding.right;
   const innerHeight = chartHeight - padding.top - padding.bottom;
@@ -79,66 +95,68 @@ export const EnpsDistributionChart: React.FC = () => {
   return (
     <div
       style={{
-        backgroundColor: theme.colors.surface.main,
-        borderRadius: theme.layout.borderRadius.card,
-        boxShadow: theme.layout.shadow.card,
-        padding: "24px 24px 32px 24px",
+        backgroundColor: noCardStyle ? "transparent" : theme.colors.surface.main,
+        borderRadius: noCardStyle ? 0 : theme.layout.borderRadius.card,
+        boxShadow: noCardStyle ? "none" : theme.layout.shadow.card,
+        padding: noCardStyle ? 0 : "24px 24px 32px 24px",
         width: "100%",
       }}
     >
       {/* Title */}
-      <div
-        style={{
-          fontFamily: theme.chart.title.fontFamily,
-          fontSize: theme.chart.title.fontSize,
-          fontWeight: theme.chart.title.fontWeight,
-          color: theme.chart.title.color,
-          marginBottom: theme.chart.title.marginBottom,
-        }}
-      >
-        eNPS Distribution
-      </div>
+      {!hideTitle && (
+        <div
+          style={{
+            fontFamily: theme.chart.title.fontFamily,
+            fontSize: compact ? theme.chart.compact.title.fontSize : theme.chart.title.fontSize,
+            fontWeight: theme.chart.title.fontWeight,
+            color: theme.chart.title.color,
+            marginBottom: compact ? theme.chart.compact.title.marginBottom : theme.chart.title.marginBottom,
+          }}
+        >
+          {title}
+        </div>
+      )}
 
       {/* Legend */}
       <div
         style={{
           display: "flex",
-          gap: theme.chart.legend.horizontalGap,
-          marginBottom: theme.chart.title.marginBottom,
+          gap: compact ? theme.chart.compact.legend.gap : theme.chart.legend.horizontalGap,
+          marginBottom: compact ? theme.chart.compact.title.marginBottom : theme.chart.title.marginBottom,
           fontFamily: theme.chart.legend.fontFamily,
-          fontSize: theme.chart.legend.fontSize,
+          fontSize: compact ? theme.chart.compact.legend.fontSize : theme.chart.legend.fontSize,
           fontWeight: theme.chart.legend.fontWeight,
           color: theme.chart.legend.color,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: theme.chart.legend.itemGap }}>
+        <div style={{ display: "flex", alignItems: "center", gap: compact ? theme.chart.compact.legend.itemGap : theme.chart.legend.itemGap }}>
           <div
             style={{
-              width: theme.chart.legend.indicator.square.width,
-              height: theme.chart.legend.indicator.square.height,
-              borderRadius: theme.chart.legend.indicator.square.borderRadius,
+              width: compact ? theme.chart.compact.legend.indicator.square.width : theme.chart.legend.indicator.square.width,
+              height: compact ? theme.chart.compact.legend.indicator.square.height : theme.chart.legend.indicator.square.height,
+              borderRadius: compact ? theme.chart.compact.legend.indicator.square.borderRadius : theme.chart.legend.indicator.square.borderRadius,
               backgroundColor: colors.promoters,
             }}
           />
           <span>Promoters (9-10) {promotersPct}%</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: theme.chart.legend.itemGap }}>
+        <div style={{ display: "flex", alignItems: "center", gap: compact ? theme.chart.compact.legend.itemGap : theme.chart.legend.itemGap }}>
           <div
             style={{
-              width: theme.chart.legend.indicator.square.width,
-              height: theme.chart.legend.indicator.square.height,
-              borderRadius: theme.chart.legend.indicator.square.borderRadius,
+              width: compact ? theme.chart.compact.legend.indicator.square.width : theme.chart.legend.indicator.square.width,
+              height: compact ? theme.chart.compact.legend.indicator.square.height : theme.chart.legend.indicator.square.height,
+              borderRadius: compact ? theme.chart.compact.legend.indicator.square.borderRadius : theme.chart.legend.indicator.square.borderRadius,
               backgroundColor: colors.passives,
             }}
           />
           <span>Passives (7-8) {passivesPct}%</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: theme.chart.legend.itemGap }}>
+        <div style={{ display: "flex", alignItems: "center", gap: compact ? theme.chart.compact.legend.itemGap : theme.chart.legend.itemGap }}>
           <div
             style={{
-              width: theme.chart.legend.indicator.square.width,
-              height: theme.chart.legend.indicator.square.height,
-              borderRadius: theme.chart.legend.indicator.square.borderRadius,
+              width: compact ? theme.chart.compact.legend.indicator.square.width : theme.chart.legend.indicator.square.width,
+              height: compact ? theme.chart.compact.legend.indicator.square.height : theme.chart.legend.indicator.square.height,
+              borderRadius: compact ? theme.chart.compact.legend.indicator.square.borderRadius : theme.chart.legend.indicator.square.borderRadius,
               backgroundColor: colors.detractors,
             }}
           />
@@ -229,7 +247,7 @@ export const EnpsDistributionChart: React.FC = () => {
               x={x}
               y={chartHeight - padding.bottom + 20}
               textAnchor="middle"
-              fontSize={theme.chart.axisLabel.fontSize}
+              fontSize={compact ? theme.chart.compact.axisLabel.fontSize : theme.chart.axisLabel.fontSize}
               fontFamily={theme.chart.axisLabel.fontFamily}
               fill={theme.chart.axisLabel.color}
             >

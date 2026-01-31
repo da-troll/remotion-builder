@@ -172,6 +172,14 @@ export const theme = {
       // Distance from last data point to x-axis labels
       labelOffset: 5,
     },
+    // Spring animation config for chart line drawing
+    animation: {
+      spring: {
+        mass: 1,
+        damping: 18,
+        stiffness: 50, // Lower = slower, smoother draw
+      },
+    },
   },
   // Animation timing constants (in frames at 60fps)
   timing: {

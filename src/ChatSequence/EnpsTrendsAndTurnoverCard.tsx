@@ -4,7 +4,7 @@ import { JoinersLeaversChart } from "./JoinersLeaversChart";
 import { generateSmoothPath } from "./chartUtils";
 
 // Story: stability, then Oct-Nov turnover event causes 9-10s to dip and 6-7s to rise
-const data = [
+const defaultData = [
   { month: "Feb", high: 58, low: 20 },  // 9-10s vs 6-7s percentages
   { month: "Mar", high: 59, low: 18 },
   { month: "Apr", high: 59, low: 19 },
@@ -21,19 +21,42 @@ const data = [
   { month: "Jan", high: 55, low: 22 },
 ];
 
-export const EnpsTrendsAndTurnoverCard: React.FC = () => {
+interface EnpsTrendsAndTurnoverCardProps {
+  title?: string;
+  data?: { month: string; high: number; low: number }[];
+  xLabels?: string[];
+  turnoverTitle?: string;
+  turnoverXLabels?: string[];
+  hideTitle?: boolean;
+  compact?: boolean;
+  embedded?: boolean; // When true, removes card styling from inner cards for nesting
+}
+
+export const EnpsTrendsAndTurnoverCard: React.FC<EnpsTrendsAndTurnoverCardProps> = ({
+  title = "eNPS - Last 12 months",
+  data = defaultData,
+  xLabels = ["Feb", "May", "Aug", "Nov"],
+  turnoverTitle = "Turnover - Last 12 months",
+  turnoverXLabels = ["Feb", "May", "Aug", "Nov"],
+  hideTitle = false,
+  compact = false,
+  embedded = false,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
   const drawProgress = spring({
     frame,
     fps,
-    config: { mass: 1, damping: 18, stiffness: 60 },
+    config: theme.chart.animation.spring,
   });
 
+  // When embedded or compact, remove card styling from inner cards
+  const noCardStyle = compact || embedded;
+
   // Chart dimensions using theme tokens
-  const chartWidth = theme.chart.width;
-  const chartHeight = 140;
+  const chartWidth = compact ? theme.chart.compact.width : theme.chart.width;
+  const chartHeight = compact ? 100 : 140;
   const padding = theme.chart.line.padding;
   const innerWidth = chartWidth - padding.left - padding.right;
   const innerHeight = chartHeight - padding.top - padding.bottom;
@@ -50,8 +73,8 @@ export const EnpsTrendsAndTurnoverCard: React.FC = () => {
 
   const pathLength = 600;
 
-  // X-axis labels (show only 4) - matches turnover chart: Feb, May, Aug, Nov
-  const labelIndices = [0, 3, 6, 9];
+  // Map xLabels to their indices in the data array
+  const labelIndices = xLabels.map((label) => data.findIndex((d) => d.month === label)).filter((i) => i >= 0);
 
   return (
     <div
@@ -59,17 +82,17 @@ export const EnpsTrendsAndTurnoverCard: React.FC = () => {
         width: "100%",
         display: "flex",
         flexDirection: "column",
-        gap: 16, // Gap between cards shows message bubble bg
+        gap: compact ? 10 : 16, // Gap between cards shows message bubble bg
         fontFamily: theme.typography.fontFamily.body,
       }}
     >
       {/* eNPS Chart Card */}
       <div
         style={{
-          backgroundColor: theme.colors.surface.main,
-          borderRadius: theme.layout.borderRadius.card,
-          boxShadow: theme.layout.shadow.card,
-          padding: "24px 24px 32px 24px",
+          backgroundColor: noCardStyle ? "transparent" : theme.colors.surface.main,
+          borderRadius: noCardStyle ? 0 : theme.layout.borderRadius.card,
+          boxShadow: noCardStyle ? "none" : theme.layout.shadow.card,
+          padding: noCardStyle ? 0 : "24px 24px 32px 24px",
         }}
       >
         {/* Title + Legend */}
@@ -78,28 +101,30 @@ export const EnpsTrendsAndTurnoverCard: React.FC = () => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
-            marginBottom: theme.chart.title.marginBottom,
+            marginBottom: compact ? theme.chart.compact.title.marginBottom : theme.chart.title.marginBottom,
           }}
         >
-          <h3
-            style={{
-              fontFamily: theme.chart.title.fontFamily,
-              fontSize: theme.chart.title.fontSize,
-              fontWeight: theme.chart.title.fontWeight,
-              color: theme.chart.title.color,
-              margin: 0,
-            }}
-          >
-            eNPS - Last 12 months
-          </h3>
+          {!hideTitle && (
+            <h3
+              style={{
+                fontFamily: theme.chart.title.fontFamily,
+                fontSize: compact ? theme.chart.compact.title.fontSize : theme.chart.title.fontSize,
+                fontWeight: theme.chart.title.fontWeight,
+                color: theme.chart.title.color,
+                margin: 0,
+              }}
+            >
+              {title}
+            </h3>
+          )}
 
           {/* Legend - Vertical Stack to match other charts */}
-          <div style={{ display: "flex", flexDirection: "column", gap: theme.chart.legend.gap }}>
-            <div style={{ display: "flex", alignItems: "center", gap: theme.chart.legend.itemGap }}>
+          <div style={{ display: "flex", flexDirection: compact ? "row" : "column", gap: compact ? theme.chart.compact.legend.gap : theme.chart.legend.gap }}>
+            <div style={{ display: "flex", alignItems: "center", gap: compact ? theme.chart.compact.legend.itemGap : theme.chart.legend.itemGap }}>
               <div
                 style={{
-                  width: theme.chart.legend.indicator.pill.width,
-                  height: theme.chart.legend.indicator.pill.height,
+                  width: compact ? theme.chart.compact.legend.indicator.pill.width : theme.chart.legend.indicator.pill.width,
+                  height: compact ? theme.chart.compact.legend.indicator.pill.height : theme.chart.legend.indicator.pill.height,
                   borderRadius: theme.chart.legend.indicator.pill.borderRadius,
                   backgroundColor: theme.colors.brand.primary,
                 }}
@@ -107,7 +132,7 @@ export const EnpsTrendsAndTurnoverCard: React.FC = () => {
               <span
                 style={{
                   fontFamily: theme.chart.legend.fontFamily,
-                  fontSize: theme.chart.legend.fontSize,
+                  fontSize: compact ? theme.chart.compact.legend.fontSize : theme.chart.legend.fontSize,
                   fontWeight: theme.chart.legend.fontWeight,
                   color: theme.chart.legend.color,
                 }}
@@ -115,11 +140,11 @@ export const EnpsTrendsAndTurnoverCard: React.FC = () => {
                 9–10s
               </span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: theme.chart.legend.itemGap }}>
+            <div style={{ display: "flex", alignItems: "center", gap: compact ? theme.chart.compact.legend.itemGap : theme.chart.legend.itemGap }}>
               <div
                 style={{
-                  width: theme.chart.legend.indicator.pill.width,
-                  height: theme.chart.legend.indicator.pill.height,
+                  width: compact ? theme.chart.compact.legend.indicator.pill.width : theme.chart.legend.indicator.pill.width,
+                  height: compact ? theme.chart.compact.legend.indicator.pill.height : theme.chart.legend.indicator.pill.height,
                   borderRadius: theme.chart.legend.indicator.pill.borderRadius,
                   backgroundColor: theme.colors.charts.orange,
                 }}
@@ -127,7 +152,7 @@ export const EnpsTrendsAndTurnoverCard: React.FC = () => {
               <span
                 style={{
                   fontFamily: theme.chart.legend.fontFamily,
-                  fontSize: theme.chart.legend.fontSize,
+                  fontSize: compact ? theme.chart.compact.legend.fontSize : theme.chart.legend.fontSize,
                   fontWeight: theme.chart.legend.fontWeight,
                   color: theme.chart.legend.color,
                 }}
@@ -181,7 +206,7 @@ export const EnpsTrendsAndTurnoverCard: React.FC = () => {
               y={chartHeight - theme.chart.line.labelOffset}
               textAnchor="middle"
               fontFamily={theme.chart.axisLabel.fontFamily}
-              fontSize={theme.chart.axisLabel.fontSize}
+              fontSize={compact ? theme.chart.compact.axisLabel.fontSize : theme.chart.axisLabel.fontSize}
               fill={theme.chart.axisLabel.color}
             >
               {data[idx].month}
@@ -192,14 +217,16 @@ export const EnpsTrendsAndTurnoverCard: React.FC = () => {
 
       {/* Turnover Chart Card - reusing JoinersLeaversChart */}
       <JoinersLeaversChart
-        title="Turnover - Last 12 months"
-        xLabels={["Feb", "May", "Aug", "Nov"]}
+        title={turnoverTitle}
+        xLabels={turnoverXLabels}
+        compact={compact}
+        embedded={embedded}
       />
 
       {/* Insight text */}
       <div
         style={{
-          fontSize: 12,
+          fontSize: compact ? 10 : 12,
           color: theme.colors.text.secondary,
           lineHeight: 1.5,
         }}
@@ -208,7 +235,7 @@ export const EnpsTrendsAndTurnoverCard: React.FC = () => {
           9–10s dip when leavers spike (Oct–Nov), while 6–7s rise.
         </span>
         <br />
-        <span style={{ fontSize: 11, opacity: 0.8 }}>
+        <span style={{ fontSize: compact ? 9 : 11, opacity: 0.8 }}>
           Correlation looks strong (illustrative) — worth slicing by team next. Correlation ≠ causation.
         </span>
       </div>
