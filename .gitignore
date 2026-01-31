@@ -58,7 +58,12 @@ Desktop.ini
 .agent/
 
 # Note: .agents/ is kept - contains shared skills (e.g., remotion-best-practices)
-# Note: .claude/ is kept - contains CLAUDE.md project instructions
+
+# ======================
+# Project-Specific Instructions
+# ======================
+# CLAUDE.md contains project-specific context for AI assistants
+CLAUDE.md
 
 # ======================
 # Logs & Debug
