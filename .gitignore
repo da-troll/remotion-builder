@@ -23,6 +23,8 @@ out/
 out/
 # Remotion cache
 .remotion/
+# Public assets (project-specific, not part of template)
+public/
 
 # ======================
 # Environment & Secrets

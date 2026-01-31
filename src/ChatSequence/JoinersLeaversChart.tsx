@@ -26,18 +26,25 @@ export const JoinersLeaversChart: React.FC<JoinersLeaversChartProps> = ({
     config: { mass: 1, damping: 15, stiffness: 80 },
   });
 
+  // Chart content dimensions
+  // Use canonical width for paths (480px coordinate system), but height fits actual content
+  const canonicalWidth = theme.chart.contentWidth; // 480 - paths are drawn in this coordinate system
+  const displayWidth = compact ? theme.chart.compact.contentWidth : theme.chart.contentWidth;
+
+  // Actual content height: paths end ~y=105, labels at y=150, plus ~15px for label text
+  // This makes the container fit tightly around content
+  const contentHeight = 165;
+
   // Hand-crafted Bezier curves matching the eNPS story:
-  // Leavers show moderate rise in Oct-Nov period. ViewBox is 0 0 400 220, Y inverted (lower Y = higher value)
+  // Leavers show moderate rise in Oct-Nov period. Y inverted (lower Y = higher value)
+  // Drawn for 480px canonical width, with ~20px top padding to match eNPS chart
   const joinerPath =
-    "M 20 95 C 120 88, 220 85, 300 90 C 340 93, 370 90, 380 88";
+    "M 24 35 C 144 28, 264 25, 360 30 C 408 33, 444 30, 456 28";
   const leaverPath =
-    "M 20 165 C 150 162, 250 155, 320 140 C 350 125, 370 115, 380 105";
+    "M 24 105 C 180 102, 300 95, 384 80 C 420 65, 444 55, 456 45";
 
   // Path length for dashoffset animation (approximate)
-  const pathLength = 500;
-
-  const svgWidth = compact ? 400 : 480;
-  const svgHeight = compact ? 160 : 220;
+  const pathLength = 600;
 
   // When embedded in another card, remove card styling but keep full size
   const noCardStyle = compact || embedded;
@@ -62,14 +69,15 @@ export const JoinersLeaversChart: React.FC<JoinersLeaversChartProps> = ({
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
-            marginBottom: compact ? 8 : 16,
+            marginBottom: compact ? theme.chart.compact.title.marginBottom : theme.chart.title.marginBottom,
           }}
         >
           <h3
             style={{
-              color: theme.colors.text.secondary,
-              fontWeight: theme.typography.weight.regular,
-              fontSize: compact ? 14 : 18,
+              fontFamily: theme.chart.title.fontFamily,
+              fontSize: compact ? theme.chart.compact.title.fontSize : theme.chart.title.fontSize,
+              fontWeight: theme.chart.title.fontWeight,
+              color: theme.chart.title.color,
               margin: 0,
             }}
           >
@@ -77,40 +85,46 @@ export const JoinersLeaversChart: React.FC<JoinersLeaversChartProps> = ({
           </h3>
 
           {/* Legend - Vertical Stack */}
-          <div style={{ display: "flex", flexDirection: compact ? "row" : "column", gap: compact ? 12 : 6 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: compact ? 4 : 8 }}>
+          <div style={{
+            display: "flex",
+            flexDirection: compact ? "row" : "column",
+            gap: compact ? theme.chart.compact.legend.gap : theme.chart.legend.gap
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: compact ? theme.chart.compact.legend.itemGap : theme.chart.legend.itemGap }}>
               <div
                 style={{
-                  width: compact ? 12 : 16,
-                  height: compact ? 3 : 4,
-                  borderRadius: 4,
+                  width: compact ? theme.chart.compact.legend.indicator.pill.width : theme.chart.legend.indicator.pill.width,
+                  height: compact ? theme.chart.compact.legend.indicator.pill.height : theme.chart.legend.indicator.pill.height,
+                  borderRadius: theme.chart.legend.indicator.pill.borderRadius,
                   backgroundColor: theme.colors.brand.primary,
                 }}
               />
               <span
                 style={{
-                  fontSize: compact ? 10 : 12,
-                  color: theme.colors.text.secondary,
-                  fontWeight: theme.typography.weight.medium,
+                  fontFamily: theme.chart.legend.fontFamily,
+                  fontSize: compact ? theme.chart.compact.legend.fontSize : theme.chart.legend.fontSize,
+                  fontWeight: theme.chart.legend.fontWeight,
+                  color: theme.chart.legend.color,
                 }}
               >
                 Joiners
               </span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: compact ? 4 : 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: compact ? theme.chart.compact.legend.itemGap : theme.chart.legend.itemGap }}>
               <div
                 style={{
-                  width: compact ? 12 : 16,
-                  height: compact ? 3 : 4,
-                  borderRadius: 4,
+                  width: compact ? theme.chart.compact.legend.indicator.pill.width : theme.chart.legend.indicator.pill.width,
+                  height: compact ? theme.chart.compact.legend.indicator.pill.height : theme.chart.legend.indicator.pill.height,
+                  borderRadius: theme.chart.legend.indicator.pill.borderRadius,
                   backgroundColor: theme.colors.charts.orange,
                 }}
               />
               <span
                 style={{
-                  fontSize: compact ? 10 : 12,
-                  color: theme.colors.text.secondary,
-                  fontWeight: theme.typography.weight.medium,
+                  fontFamily: theme.chart.legend.fontFamily,
+                  fontSize: compact ? theme.chart.compact.legend.fontSize : theme.chart.legend.fontSize,
+                  fontWeight: theme.chart.legend.fontWeight,
+                  color: theme.chart.legend.color,
                 }}
               >
                 Leavers
@@ -123,8 +137,10 @@ export const JoinersLeaversChart: React.FC<JoinersLeaversChartProps> = ({
       {/* CHART AREA */}
       <div style={{ position: "relative" }}>
         <svg
-          viewBox="0 0 400 220"
-          style={{ width: svgWidth, height: svgHeight, overflow: "visible" }}
+          viewBox={`0 0 ${canonicalWidth} ${contentHeight}`}
+          width={displayWidth}
+          height={contentHeight * (displayWidth / canonicalWidth)}
+          style={{ overflow: "visible" }}
         >
           {/* Line 1: Joiners (Teal) */}
           <path
@@ -149,16 +165,18 @@ export const JoinersLeaversChart: React.FC<JoinersLeaversChartProps> = ({
           />
 
           {/* X-AXIS LABELS */}
-          <g transform="translate(0, 210)">
+          <g transform="translate(0, 150)">
             {xLabels.map((label, i) => {
-              const xPos = 20 + (360 / (xLabels.length - 1)) * i;
+              // Padding: 24 left, 24 right = 432 usable width (in canonical 480px space)
+              const xPos = 24 + (432 / (xLabels.length - 1)) * i;
               return (
                 <text
                   key={label}
                   x={xPos}
                   y="0"
-                  fill="#9CA3AF"
-                  fontSize={compact ? 10 : 12}
+                  fill={theme.chart.axisLabel.color}
+                  fontFamily={theme.chart.axisLabel.fontFamily}
+                  fontSize={theme.chart.axisLabel.fontSize}
                   textAnchor="middle"
                 >
                   {label}
