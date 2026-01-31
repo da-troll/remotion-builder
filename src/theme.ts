@@ -133,8 +133,8 @@ export const theme = {
     // Insight text (explanatory text below charts)
     insight: {
       fontFamily: "Inter",
-      fontSize: 18, // Match message text size for consistency
-      fontSizeSmall: 14, // Secondary/muted insight text
+      fontSize: 15, // Slightly smaller than message text
+      fontSizeSmall: 14, // List items (kept same size)
       fontWeight: 500, // medium
       color: "#706e78", // text.secondary
       lineHeight: 1.5,
@@ -203,8 +203,8 @@ export const theme = {
         },
       },
       insight: {
-        fontSize: 14,
-        fontSizeSmall: 11,
+        fontSize: 12,
+        fontSizeSmall: 11, // List items (kept same size)
       },
       width: 320,
       contentWidth: 320,

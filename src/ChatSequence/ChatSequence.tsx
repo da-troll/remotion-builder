@@ -131,7 +131,7 @@ const layoutConfig = {
     scale: 2.8,
     align: "center" as const,
     transformOrigin: "center bottom",
-    containerPadding: { top: 0, left: 1150, right: 160, bottom: 400 },
+    containerPadding: { top: 0, left: 1150, right: 160, bottom: 320 },
     logoHeight: 160,
     logoOffset: 100,
     maxWidth: 800, // Base width before scaling (800 * 2.8 = 2240px effective)
@@ -141,7 +141,7 @@ const layoutConfig = {
     scale: 2.5,
     align: "center" as const,
     transformOrigin: "center bottom",
-    containerPadding: { top: 0, left: 80, right: 80, bottom: 350 },
+    containerPadding: { top: 0, left: 80, right: 80, bottom: 280 },
     logoHeight: 140,
     logoOffset: 80,
     maxWidth: 480, // Smaller base width, scales to ~1200px effective

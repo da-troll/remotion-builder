@@ -41,7 +41,7 @@ export const ReviewGapByDeptCard: React.FC<ReviewGapByDeptCardProps> = ({
       ? theme.chart.mobile.contentWidth
       : theme.chart.contentWidth;
   const chartHeight = compact ? 180 : isMobile ? 150 : 220;
-  const padding = { top: 10, right: 40, bottom: 20, left: 120 };
+  const padding = { top: 10, right: 40, bottom: 20, left: isMobile ? 115 : 150 };
   const innerWidth = chartWidth - padding.left - padding.right;
   const innerHeight = chartHeight - padding.top - padding.bottom;
 
@@ -142,11 +142,11 @@ export const ReviewGapByDeptCard: React.FC<ReviewGapByDeptCardProps> = ({
                 fill={isPositive ? theme.colors.charts.green : theme.colors.charts.orange}
               />
 
-              {/* Value label */}
+              {/* Value label - positioned to right of bar for both positive and negative */}
               <text
-                x={isPositive ? centerX + animatedWidth + 8 : centerX - animatedWidth - 8}
+                x={isPositive ? centerX + animatedWidth + 8 : centerX + 8}
                 y={y + barHeight / 2 + 4}
-                textAnchor={isPositive ? "start" : "end"}
+                textAnchor="start"
                 fontFamily={theme.chart.axisLabel.fontFamily}
                 fontSize={compact ? 10 : 11}
                 fontWeight={500}
