@@ -157,6 +157,21 @@ export const theme = {
       padding: "24px 24px 32px 24px",
       // backgroundColor, borderRadius, boxShadow use layout tokens
     },
+    // Line chart specific tokens
+    line: {
+      strokeWidth: 4, // Primary line thickness
+      strokeWidthSecondary: 2.5, // Thinner lines for dense multi-line charts
+      tension: 0.3, // Catmull-Rom bezier curve tension (0 = straight, 1 = very curved)
+      // Padding around chart content (SVG coordinate space)
+      padding: {
+        top: 10,
+        right: 20,
+        bottom: 25,
+        left: 30,
+      },
+      // Distance from last data point to x-axis labels
+      labelOffset: 5,
+    },
   },
   // Animation timing constants (in frames at 60fps)
   timing: {

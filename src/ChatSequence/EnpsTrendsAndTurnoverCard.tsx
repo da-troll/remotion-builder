@@ -1,6 +1,7 @@
 import { spring, useCurrentFrame, useVideoConfig, interpolate } from "remotion";
 import { theme } from "../theme";
 import { JoinersLeaversChart } from "./JoinersLeaversChart";
+import { generateSmoothPath } from "./chartUtils";
 
 // Story: stability, then Oct-Nov turnover event causes 9-10s to dip and 6-7s to rise
 const data = [
@@ -20,27 +21,6 @@ const data = [
   { month: "Jan", high: 55, low: 22 },
 ];
 
-// Generate smooth SVG path from points
-const generateSmoothPath = (
-  points: { x: number; y: number }[],
-  tension: number = 0.3
-): string => {
-  if (points.length < 2) return "";
-  let path = `M ${points[0].x} ${points[0].y}`;
-  for (let i = 0; i < points.length - 1; i++) {
-    const p0 = points[Math.max(0, i - 1)];
-    const p1 = points[i];
-    const p2 = points[i + 1];
-    const p3 = points[Math.min(points.length - 1, i + 2)];
-    const cp1x = p1.x + ((p2.x - p0.x) * tension) / 3;
-    const cp1y = p1.y + ((p2.y - p0.y) * tension) / 3;
-    const cp2x = p2.x - ((p3.x - p1.x) * tension) / 3;
-    const cp2y = p2.y - ((p3.y - p1.y) * tension) / 3;
-    path += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
-  }
-  return path;
-};
-
 export const EnpsTrendsAndTurnoverCard: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -51,10 +31,10 @@ export const EnpsTrendsAndTurnoverCard: React.FC = () => {
     config: { mass: 1, damping: 18, stiffness: 60 },
   });
 
-  // Chart dimensions (width from theme, height flexible for content)
+  // Chart dimensions using theme tokens
   const chartWidth = theme.chart.width;
   const chartHeight = 140;
-  const padding = { top: 10, right: 20, bottom: 25, left: 30 };
+  const padding = theme.chart.line.padding;
   const innerWidth = chartWidth - padding.left - padding.right;
   const innerHeight = chartHeight - padding.top - padding.bottom;
 
@@ -176,7 +156,7 @@ export const EnpsTrendsAndTurnoverCard: React.FC = () => {
             d={highPath}
             fill="none"
             stroke={theme.colors.brand.primary}
-            strokeWidth={4}
+            strokeWidth={theme.chart.line.strokeWidth}
             strokeLinecap="round"
             strokeDasharray={pathLength}
             strokeDashoffset={interpolate(drawProgress, [0, 1], [pathLength, 0])}
@@ -187,7 +167,7 @@ export const EnpsTrendsAndTurnoverCard: React.FC = () => {
             d={lowPath}
             fill="none"
             stroke={theme.colors.charts.orange}
-            strokeWidth={4}
+            strokeWidth={theme.chart.line.strokeWidth}
             strokeLinecap="round"
             strokeDasharray={pathLength}
             strokeDashoffset={interpolate(drawProgress, [0, 1], [pathLength, 0])}
@@ -198,7 +178,7 @@ export const EnpsTrendsAndTurnoverCard: React.FC = () => {
             <text
               key={data[idx].month}
               x={xScale(idx)}
-              y={chartHeight - 5}
+              y={chartHeight - theme.chart.line.labelOffset}
               textAnchor="middle"
               fontFamily={theme.chart.axisLabel.fontFamily}
               fontSize={theme.chart.axisLabel.fontSize}

@@ -1,5 +1,24 @@
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { theme } from "../theme";
+import { generateSmoothPath } from "./chartUtils";
+
+// 12-month turnover data matching the eNPS story: stability, then Oct-Nov turnover event
+const turnoverData = [
+  { month: "Feb", joiners: 15, leavers: 8 },
+  { month: "Mar", joiners: 16, leavers: 7 },
+  { month: "Apr", joiners: 15, leavers: 8 },
+  { month: "May", joiners: 17, leavers: 7 },
+  { month: "Jun", joiners: 18, leavers: 6 },
+  { month: "Jul", joiners: 16, leavers: 8 },
+  { month: "Aug", joiners: 14, leavers: 10 },
+  { month: "Sep", joiners: 12, leavers: 13 },
+  // Turnover event: Oct-Nov (leavers spike, joiners drop)
+  { month: "Oct", joiners: 8, leavers: 20 },
+  { month: "Nov", joiners: 7, leavers: 18 },
+  // Recovery
+  { month: "Dec", joiners: 10, leavers: 12 },
+  { month: "Jan", joiners: 14, leavers: 9 },
+];
 
 interface JoinersLeaversChartProps {
   title?: string;
@@ -26,22 +45,23 @@ export const JoinersLeaversChart: React.FC<JoinersLeaversChartProps> = ({
     config: { mass: 1, damping: 15, stiffness: 80 },
   });
 
-  // Chart content dimensions
-  // Use canonical width for paths (480px coordinate system), but height fits actual content
-  const canonicalWidth = theme.chart.contentWidth; // 480 - paths are drawn in this coordinate system
-  const displayWidth = compact ? theme.chart.compact.contentWidth : theme.chart.contentWidth;
+  // Chart dimensions using theme tokens (matching eNPS chart structure)
+  const chartWidth = compact ? theme.chart.compact.contentWidth : theme.chart.contentWidth;
+  const chartHeight = 140; // Same as eNPS chart
+  const padding = theme.chart.line.padding;
+  const innerWidth = chartWidth - padding.left - padding.right;
+  const innerHeight = chartHeight - padding.top - padding.bottom;
 
-  // Actual content height: paths end ~y=105, labels at y=150, plus ~15px for label text
-  // This makes the container fit tightly around content
-  const contentHeight = 165;
+  // Scales
+  const xScale = (i: number) => padding.left + (i / (turnoverData.length - 1)) * innerWidth;
+  // Y scale: 0-25 range for joiners/leavers count, inverted (lower y = higher value)
+  const yScale = (val: number) => padding.top + innerHeight - (val / 25) * innerHeight;
 
-  // Hand-crafted Bezier curves matching the eNPS story:
-  // Leavers show moderate rise in Oct-Nov period. Y inverted (lower Y = higher value)
-  // Drawn for 480px canonical width, with ~20px top padding to match eNPS chart
-  const joinerPath =
-    "M 24 35 C 144 28, 264 25, 360 30 C 408 33, 444 30, 456 28";
-  const leaverPath =
-    "M 24 105 C 180 102, 300 95, 384 80 C 420 65, 444 55, 456 45";
+  // Generate smooth paths from data points
+  const joinerPoints = turnoverData.map((d, i) => ({ x: xScale(i), y: yScale(d.joiners) }));
+  const leaverPoints = turnoverData.map((d, i) => ({ x: xScale(i), y: yScale(d.leavers) }));
+  const joinerPath = generateSmoothPath(joinerPoints);
+  const leaverPath = generateSmoothPath(leaverPoints);
 
   // Path length for dashoffset animation (approximate)
   const pathLength = 600;
@@ -135,57 +155,48 @@ export const JoinersLeaversChart: React.FC<JoinersLeaversChartProps> = ({
       )}
 
       {/* CHART AREA */}
-      <div style={{ position: "relative" }}>
-        <svg
-          viewBox={`0 0 ${canonicalWidth} ${contentHeight}`}
-          width={displayWidth}
-          height={contentHeight * (displayWidth / canonicalWidth)}
-          style={{ overflow: "visible" }}
-        >
-          {/* Line 1: Joiners (Teal) */}
-          <path
-            d={joinerPath}
-            fill="none"
-            stroke={theme.colors.brand.primary}
-            strokeWidth="4"
-            strokeLinecap="round"
-            strokeDasharray={pathLength}
-            strokeDashoffset={interpolate(progress, [0, 1], [pathLength, 0])}
-          />
+      <svg width={chartWidth} height={chartHeight}>
+        {/* Line 1: Joiners (Brand Primary) */}
+        <path
+          d={joinerPath}
+          fill="none"
+          stroke={theme.colors.brand.primary}
+          strokeWidth={theme.chart.line.strokeWidth}
+          strokeLinecap="round"
+          strokeDasharray={pathLength}
+          strokeDashoffset={interpolate(progress, [0, 1], [pathLength, 0])}
+        />
 
-          {/* Line 2: Leavers (Orange) */}
-          <path
-            d={leaverPath}
-            fill="none"
-            stroke={theme.colors.charts.orange}
-            strokeWidth="4"
-            strokeLinecap="round"
-            strokeDasharray={pathLength}
-            strokeDashoffset={interpolate(progress, [0, 1], [pathLength, 0])}
-          />
+        {/* Line 2: Leavers (Orange) */}
+        <path
+          d={leaverPath}
+          fill="none"
+          stroke={theme.colors.charts.orange}
+          strokeWidth={theme.chart.line.strokeWidth}
+          strokeLinecap="round"
+          strokeDasharray={pathLength}
+          strokeDashoffset={interpolate(progress, [0, 1], [pathLength, 0])}
+        />
 
-          {/* X-AXIS LABELS */}
-          <g transform="translate(0, 150)">
-            {xLabels.map((label, i) => {
-              // Padding: 24 left, 24 right = 432 usable width (in canonical 480px space)
-              const xPos = 24 + (432 / (xLabels.length - 1)) * i;
-              return (
-                <text
-                  key={label}
-                  x={xPos}
-                  y="0"
-                  fill={theme.chart.axisLabel.color}
-                  fontFamily={theme.chart.axisLabel.fontFamily}
-                  fontSize={theme.chart.axisLabel.fontSize}
-                  textAnchor="middle"
-                >
-                  {label}
-                </text>
-              );
-            })}
-          </g>
-        </svg>
-      </div>
+        {/* X-AXIS LABELS */}
+        {xLabels.map((label, i) => {
+          // Map label index to data index (Feb=0, May=3, Aug=6, Nov=9)
+          const dataIndex = i * 3;
+          return (
+            <text
+              key={label}
+              x={xScale(dataIndex)}
+              y={chartHeight - theme.chart.line.labelOffset}
+              fill={theme.chart.axisLabel.color}
+              fontFamily={theme.chart.axisLabel.fontFamily}
+              fontSize={theme.chart.axisLabel.fontSize}
+              textAnchor="middle"
+            >
+              {label}
+            </text>
+          );
+        })}
+      </svg>
     </div>
   );
 };
