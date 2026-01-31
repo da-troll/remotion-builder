@@ -339,12 +339,13 @@ export const EnpsBucketsVsTurnoverChart: React.FC = () => {
           padding: "10px 12px",
           backgroundColor: theme.colors.surface.variant,
           borderRadius: 8,
-          fontSize: 11,
-          color: theme.colors.text.secondary,
-          lineHeight: 1.5,
+          fontFamily: theme.chart.insight.fontFamily,
+          fontSize: theme.chart.insight.fontSizeSmall,
+          color: theme.chart.insight.color,
+          lineHeight: theme.chart.insight.lineHeight,
         }}
       >
-        <div style={{ fontWeight: theme.typography.weight.medium, marginBottom: 4 }}>
+        <div style={{ fontWeight: theme.chart.insight.fontWeight, marginBottom: 4 }}>
           Correlation (illustrative)
         </div>
         <div>Leavers vs 9–10s: r = {corrLeaversHigh.toFixed(2)}</div>
@@ -353,7 +354,7 @@ export const EnpsBucketsVsTurnoverChart: React.FC = () => {
           style={{
             marginTop: 6,
             fontStyle: "italic",
-            fontSize: 10,
+            fontSize: theme.chart.compact.insight.fontSizeSmall,
             opacity: 0.8,
           }}
         >

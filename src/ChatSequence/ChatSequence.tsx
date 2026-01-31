@@ -4,11 +4,31 @@ import { JoinersLeaversChart } from "./JoinersLeaversChart";
 import { EnpsDistributionChart } from "./EnpsDistributionChart";
 import { EnpsBucketsVsTurnoverChart } from "./EnpsBucketsVsTurnoverChart";
 import { EnpsTrendsAndTurnoverCard } from "./EnpsTrendsAndTurnoverCard";
+// Option 1: Burnout/Capacity story
+import { CapacityStressSignalCard } from "./CapacityStressSignalCard";
+import { CapacityHotspotsTableCard } from "./CapacityHotspotsTableCard";
+import { BurnoutFastFixesCard } from "./BurnoutFastFixesCard";
+// Option 2: Policy impact story
+import { PolicyImpactOverviewCard } from "./PolicyImpactOverviewCard";
+import { PolicyImpactSegmentsCard } from "./PolicyImpactSegmentsCard";
+// Option 3: Skills coverage story
+import { SkillsCoverageRiskCard } from "./SkillsCoverageRiskCard";
+import { SkillsCoverageGapNext30Card } from "./SkillsCoverageGapNext30Card";
+import { SkillsMitigationPlanCard } from "./SkillsMitigationPlanCard";
+// Option 4: Manager load story
+import { ManagerLoadSignalCard } from "./ManagerLoadSignalCard";
+import { ManagerOutliersTableCard } from "./ManagerOutliersTableCard";
+import { ManagerLoadInterventionsCard } from "./ManagerLoadInterventionsCard";
+// Option 5: Reviews to retention story
+import { ReviewsToRetentionSignalCard } from "./ReviewsToRetentionSignalCard";
+import { ReviewGapByDeptCard } from "./ReviewGapByDeptCard";
+import { ReviewDriverDeltasCard } from "./ReviewDriverDeltasCard";
 import { theme } from "../theme";
 import type { ChatSequenceProps, ChatMessage } from "./schema";
 
 // Helper to get chart widget based on message config
 const getChartWidget = (msg: ChatMessage): React.ReactNode | undefined => {
+  // Existing chart types
   if (msg.chartType === "enps-distribution") {
     return <EnpsDistributionChart />;
   }
@@ -21,15 +41,94 @@ const getChartWidget = (msg: ChatMessage): React.ReactNode | undefined => {
   if (msg.chartType === "joiners-leavers" || msg.showChart) {
     return <JoinersLeaversChart />;
   }
+
+  // Option 1: Burnout/Capacity story
+  if (msg.chartType === "capacity-stress-signal") {
+    return <CapacityStressSignalCard />;
+  }
+  if (msg.chartType === "capacity-hotspots-table") {
+    return <CapacityHotspotsTableCard />;
+  }
+  if (msg.chartType === "burnout-fast-fixes") {
+    return <BurnoutFastFixesCard />;
+  }
+
+  // Option 2: Policy impact story
+  if (msg.chartType === "policy-impact-overview") {
+    return <PolicyImpactOverviewCard />;
+  }
+  if (msg.chartType === "policy-impact-segments") {
+    return <PolicyImpactSegmentsCard />;
+  }
+
+  // Option 3: Skills coverage story
+  if (msg.chartType === "skills-coverage-risk") {
+    return <SkillsCoverageRiskCard />;
+  }
+  if (msg.chartType === "skills-coverage-gap-next-30") {
+    return <SkillsCoverageGapNext30Card />;
+  }
+  if (msg.chartType === "skills-mitigation-plan") {
+    return <SkillsMitigationPlanCard />;
+  }
+
+  // Option 4: Manager load story
+  if (msg.chartType === "manager-load-signal") {
+    return <ManagerLoadSignalCard />;
+  }
+  if (msg.chartType === "manager-outliers-table") {
+    return <ManagerOutliersTableCard />;
+  }
+  if (msg.chartType === "manager-load-interventions") {
+    return <ManagerLoadInterventionsCard />;
+  }
+
+  // Option 5: Reviews to retention story
+  if (msg.chartType === "reviews-to-retention-signal") {
+    return <ReviewsToRetentionSignalCard />;
+  }
+  if (msg.chartType === "review-gap-by-dept") {
+    return <ReviewGapByDeptCard />;
+  }
+  if (msg.chartType === "review-driver-deltas") {
+    return <ReviewDriverDeltasCard />;
+  }
+
   return undefined;
 };
 
+// Calculate carousel mode timing for a message
+// - Most recent (1st): fully visible
+// - 2nd last: fully visible
+// - 3rd last: faded to background
+// - 4th last: exits/disappears
+const getCarouselTiming = (
+  messages: ChatMessage[],
+  index: number
+): { fadeToBackgroundFrame?: number; exitFrame?: number } => {
+  const currentMsg = messages[index];
+  const msg2After = messages[index + 2]; // When this appears, current becomes 3rd last
+  const msg3After = messages[index + 3]; // When this appears, current becomes 4th last
+
+  // Fade to background when becoming 3rd last message
+  const fadeToBackgroundFrame = msg2After
+    ? msg2After.delay - currentMsg.delay - 10
+    : undefined;
+
+  // Exit when becoming 4th last message
+  const exitFrame = msg3After
+    ? msg3After.delay - currentMsg.delay - 10
+    : undefined;
+
+  return { fadeToBackgroundFrame, exitFrame };
+};
+
 export const ChatSequence: React.FC<ChatSequenceProps> = ({
-  brandName,
-  logoSrc,
   backgroundColor,
   backgroundImage,
   logoPosition = "bottom-left",
+  carouselMode = false,
+  gradientFade = false,
   messages,
 }) => {
   return (
@@ -84,6 +183,11 @@ export const ChatSequence: React.FC<ChatSequenceProps> = ({
           alignItems: "center",
           overflow: "hidden",
           zIndex: 1,
+          // Gradient fade: transparent at top, fading in from 40% down
+          ...(gradientFade && {
+            maskImage: "linear-gradient(to bottom, transparent 0%, black 40%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 40%)",
+          }),
         }}
       >
         {/* Inner container to constrain message width */}
@@ -95,20 +199,26 @@ export const ChatSequence: React.FC<ChatSequenceProps> = ({
             flexDirection: "column",
           }}
         >
-          {messages.map((msg, index) => (
-            <MessageBubble
-              key={index}
-              text={msg.text}
-              isAi={msg.isAi}
-              delay={msg.delay}
-              userName={msg.userName}
-              userAvatar={msg.userAvatar}
-              brandName={brandName}
-              logoSrc={logoSrc}
-              reasoningSteps={msg.reasoningSteps}
-              chartWidget={getChartWidget(msg)}
-            />
-          ))}
+          {messages.map((msg, index) => {
+            const carouselTiming = carouselMode
+              ? getCarouselTiming(messages, index)
+              : {};
+
+            return (
+              <MessageBubble
+                key={index}
+                text={msg.text}
+                isAi={msg.isAi}
+                delay={msg.delay}
+                userName={msg.userName}
+                userAvatar={msg.userAvatar}
+                reasoningSteps={msg.reasoningSteps}
+                chartWidget={getChartWidget(msg)}
+                fadeToBackgroundFrame={carouselTiming.fadeToBackgroundFrame}
+                exitFrame={carouselTiming.exitFrame}
+              />
+            );
+          })}
         </div>
       </div>
     </AbsoluteFill>

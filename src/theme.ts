@@ -119,6 +119,15 @@ export const theme = {
         },
       },
     },
+    // Insight text (explanatory text below charts)
+    insight: {
+      fontFamily: "Inter",
+      fontSize: 14, // Main insight text
+      fontSizeSmall: 12, // Secondary/muted insight text
+      fontWeight: 500, // medium
+      color: "#706e78", // text.secondary
+      lineHeight: 1.5,
+    },
     // Chart dimensions
     width: 480, // Overall card/component width
     contentWidth: 480, // Width of the chart/graph content (SVG area)
@@ -147,6 +156,10 @@ export const theme = {
             borderRadius: 2,
           },
         },
+      },
+      insight: {
+        fontSize: 12,
+        fontSizeSmall: 10,
       },
       width: 400,
       contentWidth: 400,
@@ -192,11 +205,11 @@ export const theme = {
       aiChartToUser: {
         // After AI chart, before next user message (thinking time + viewing time)
         base: 140, // Base viewing time after chart appears
-        perThinkingStep: 136, // Frames per thinking step (2.27s each)
+        perThinkingStep: 100, // Frames per thinking step (~1.67s each)
       },
     },
     // Thinking animation
-    thinkingDurationPerStep: 136, // Duration of each thinking step (2.27s at 60fps)
+    thinkingDurationPerStep: 100, // Duration of each thinking step (~1.67s at 60fps)
     // Typewriter effect
     charsPerFrame: 1.125, // Characters revealed per frame
     // Shimmer animation cycle

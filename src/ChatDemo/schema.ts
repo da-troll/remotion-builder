@@ -59,7 +59,7 @@ export const MessageSchema = z.discriminatedUnion("type", [
 export const ChatDemoSchema = z.object({
   // Branding
   brandName: z.string().default("Sia"),
-  logoSrc: z.string().optional(), // Path to logo image in public folder
+  logoSrc: z.string().default("simployer-assets/Simployer Symbol/Symbol - Purple.svg"), // Path to logo image in public folder
   backgroundColor: zColor().default("#fffcfb"), // theme.colors.surface.viewport
 
   // Messages with timing

@@ -1,7 +1,6 @@
-import { spring, useCurrentFrame, useVideoConfig, interpolate } from "remotion";
+import { spring, useCurrentFrame, useVideoConfig, interpolate, Img, staticFile } from "remotion";
 import { theme } from "../theme";
 import { fonts } from "../fonts";
-import { BrandLogo } from "../ChatDemo/BrandLogo";
 
 // Timing constants from theme
 const timing = theme.timing;
@@ -14,11 +13,12 @@ interface MessageBubbleProps {
   delay: number;
   userName?: string;
   userAvatar?: string;
-  brandName?: string;
-  logoSrc?: string;
-  // New props for reasoning & chart
+  // Props for reasoning & chart
   reasoningSteps?: ThinkingStep[];
   chartWidget?: React.ReactNode;
+  // Carousel mode props (fade/exit animations)
+  fadeToBackgroundFrame?: number; // Frame (relative to delay) when message fades to background
+  exitFrame?: number; // Frame (relative to delay) when message starts exiting
 }
 
 export const MessageBubble: React.FC<MessageBubbleProps> = ({
@@ -27,10 +27,10 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
   delay,
   userName = "User",
   userAvatar,
-  brandName = "Sia",
-  logoSrc,
   reasoningSteps,
   chartWidget,
+  fadeToBackgroundFrame,
+  exitFrame,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -100,6 +100,36 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
   // Calculate animated height for smooth layout shifts
   const animatedHeight = activeFrame < 0 ? 0 : heightProgress;
 
+  // Calculate final opacity with fade/exit effects
+  let finalOpacity = containerEntrance;
+
+  // Fade to background (for messages that become context)
+  if (fadeToBackgroundFrame !== undefined && activeFrame >= fadeToBackgroundFrame) {
+    const fadeProgress = interpolate(
+      activeFrame,
+      [fadeToBackgroundFrame, fadeToBackgroundFrame + 15],
+      [1, 0.35],
+      { extrapolateRight: "clamp" }
+    );
+    finalOpacity = finalOpacity * fadeProgress;
+  }
+
+  // Exit animation (fade out completely)
+  if (exitFrame !== undefined && activeFrame >= exitFrame) {
+    const exitOpacity = interpolate(
+      activeFrame,
+      [exitFrame, exitFrame + 15],
+      [1, 0],
+      { extrapolateRight: "clamp" }
+    );
+    finalOpacity = finalOpacity * exitOpacity;
+  }
+
+  // Don't render if fully faded out
+  if (exitFrame !== undefined && activeFrame > exitFrame + 15) {
+    return null;
+  }
+
   return (
     <div
       style={{
@@ -114,8 +144,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
           display: "flex",
           width: "100%",
           justifyContent: isAi ? "flex-start" : "flex-end",
-          // Container entrance: opacity + transform
-          opacity: containerEntrance,
+          // Container entrance: opacity + transform (includes fade/exit effects)
+          opacity: finalOpacity,
           transform: `translateY(${10 * (1 - containerEntrance)}px) scale(${0.98 + 0.02 * containerEntrance})`,
           transformOrigin: isAi ? "bottom left" : "bottom right",
         }}
@@ -123,7 +153,19 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       {/* AI Avatar */}
       {isAi && (
         <div style={{ marginRight: 12, flexShrink: 0 }}>
-          <BrandLogo size={40} imageSrc={logoSrc} />
+          {userAvatar ? (
+            <Img
+              src={staticFile(userAvatar)}
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                objectFit: "cover",
+              }}
+            />
+          ) : (
+            <div style={{ width: 40, height: 40 }} />
+          )}
         </div>
       )}
 
@@ -162,7 +204,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             marginBottom: 6,
           }}
         >
-          {isAi ? brandName : userName}
+          {userName}
         </div>
 
         {/* REASONING/CHART MESSAGE */}
@@ -183,7 +225,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                   backgroundClip: "text",
                 }}
               >
-                {reasoningSteps[currentStepIndex]}
+                {reasoningSteps[currentStepIndex]}...
               </div>
             )}
 
@@ -213,8 +255,24 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         )}
       </div>
 
-      {/* Spacer to balance AI avatar for centering */}
-      {!isAi && <div style={{ width: 52, flexShrink: 0 }} />}
+      {/* User Avatar */}
+      {!isAi && (
+        <div style={{ marginLeft: 12, flexShrink: 0 }}>
+          {userAvatar ? (
+            <Img
+              src={staticFile(userAvatar)}
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                objectFit: "cover",
+              }}
+            />
+          ) : (
+            <div style={{ width: 40, height: 40 }} />
+          )}
+        </div>
+      )}
       </div>
     </div>
   );

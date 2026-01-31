@@ -9,6 +9,7 @@ import {
 
 const BRAND_NAME = "Sia";
 const BACKGROUND_COLOR = "#fffcfb";
+const LOGO_SRC = "simployer-assets/Simployer Symbol/Symbol - Purple.svg";
 
 export const ChatDemoCompositions: React.FC = () => (
   <>
@@ -26,6 +27,7 @@ export const ChatDemoCompositions: React.FC = () => (
         defaultProps={{
           brandName: BRAND_NAME,
           backgroundColor: BACKGROUND_COLOR,
+          logoSrc: LOGO_SRC,
           messages: chatDemoAskMessages,
         }}
       />
@@ -42,6 +44,7 @@ export const ChatDemoCompositions: React.FC = () => (
         defaultProps={{
           brandName: BRAND_NAME,
           backgroundColor: BACKGROUND_COLOR,
+          logoSrc: LOGO_SRC,
           messages: chatDemoAssignMessages,
         }}
       />
@@ -58,6 +61,7 @@ export const ChatDemoCompositions: React.FC = () => (
         defaultProps={{
           brandName: BRAND_NAME,
           backgroundColor: BACKGROUND_COLOR,
+          logoSrc: LOGO_SRC,
           messages: chatDemoActionMessages,
         }}
       />
@@ -77,6 +81,7 @@ export const ChatDemoCompositions: React.FC = () => (
         defaultProps={{
           brandName: BRAND_NAME,
           backgroundColor: BACKGROUND_COLOR,
+          logoSrc: LOGO_SRC,
           messages: chatDemoChartMessages,
         }}
       />

@@ -54,3 +54,16 @@ export const chartDelays = {
   msg1: calcDelays.start, // 30 - User
   msg2: calcDelays.start + t.userToAiThinking, // 60 - AI chart (4 steps)
 };
+
+// Pre-calculated delays for 8-message story sequences (Burnout, Policy, Skills)
+// Pattern: User -> AI text -> User -> AI chart (3 steps) -> User -> AI chart (3 steps) -> User -> AI chart/text
+export const storyDelays = {
+  msg1: 30,    // User
+  msg2: 120,   // AI text
+  msg3: 330,   // User
+  msg4: 360,   // AI chart (3 steps)
+  msg5: 920,   // User
+  msg6: 950,   // AI chart (3 steps)
+  msg7: 1360,  // User
+  msg8: 1390,  // AI chart/text (3 steps or text response)
+};

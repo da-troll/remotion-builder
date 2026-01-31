@@ -1,280 +1,89 @@
-# Remotion Video Project
+# Remotion Video Engine
 
-A Remotion-based video project template for creating animated videos with React components.
+A Remotion-based video project for creating animated AI chat demo videos with React components.
 
-<p align="center">
-  <a href="https://github.com/remotion-dev/logo">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-dark.apng">
-      <img alt="Animated Remotion Logo" src="https://github.com/remotion-dev/logo/raw/main/animated-logo-banner-light.gif">
-    </picture>
-  </a>
-</p>
-
-## Installation
+## Quick Start
 
 ```bash
-# Install dependencies
-npm install
-
-# Start the development preview
-npm run dev
-
-# Run linting and type checking
-npm run lint
+npm install      # Install dependencies
+npm run dev      # Start Remotion Studio
+npm run lint     # Run ESLint + TypeScript checks
 ```
 
 ## Project Structure
 
 ```
 src/
-├── index.ts                 # Entry point (registerRoot)
-├── Root.tsx                 # Minimal root - imports AllCompositions
+├── index.ts                 # Entry point
+├── Root.tsx                 # Root component
 ├── theme.ts                 # Design tokens (colors, typography, timing)
 ├── fonts.ts                 # Font configuration
-├── index.css                # Global styles (TailwindCSS v4)
 │
-├── compositions/            # All composition definitions
-│   ├── index.tsx            # Exports AllCompositions component
-│   ├── timing.ts            # Pre-calculated delay values
-│   ├── messages.ts          # Shared content/props for compositions
-│   └── [Category]Compositions.tsx  # Grouped compositions by category
+├── compositions/            # Composition definitions
+│   ├── index.tsx            # Exports AllCompositions
+│   ├── timing.ts            # Pre-calculated delays
+│   ├── messages.ts          # Message content for compositions
+│   └── *Compositions.tsx    # Grouped compositions
 │
-└── [ComponentName]/         # Feature-specific components
-    ├── ComponentName.tsx    # Main component
-    ├── schema.ts            # Zod schemas for type-safe props
-    └── ...                  # Supporting components
+├── ChatSequence/            # Main chat interface + charts
+│   ├── ChatSequence.tsx     # Container with getChartWidget()
+│   ├── MessageBubble.tsx    # Message with animations
+│   ├── schema.ts            # Zod schemas
+│   └── *Chart.tsx           # Chart components
+│
+└── ChatDemo/                # Alternative chat format
 ```
 
-## Organizing Compositions with Folders
+## Available Compositions
 
-Use `<Folder>` to group compositions in the Studio sidebar:
+### Desktop (1920×1080)
+- `ChatSequence-EnpsTurnover` - eNPS + turnover analysis
+- `ChatSequence-BurnoutCapacity` - Burnout/capacity stress
+- `ChatSequence-PolicyImpact` - Policy impact analysis
+- `ChatSequence-SkillsCoverage` - Skills coverage risk
+- `ChatSequence-MultiTurn` - Text-only conversation
+- `ChatSequence-Chart` - Single chart demo
 
-```tsx
-import { Composition, Folder } from "remotion";
-
-export const MyCompositions: React.FC = () => (
-  <Folder name="Marketing">
-    <Folder name="Desktop">
-      <Composition id="promo-video" ... />
-      <Composition id="explainer" ... />
-    </Folder>
-    <Folder name="Mobile">
-      <Composition id="promo-video-mobile" ... />
-    </Folder>
-  </Folder>
-);
-```
-
-**Folder naming rules:**
-- Only letters, numbers, and `-` (no spaces or underscores)
-- Can be nested arbitrarily deep
-
-## Creating Compositions
-
-### Step 1: Define your content in `compositions/messages.ts`
-
-```typescript
-export const myVideoContent = {
-  title: "Welcome",
-  subtitle: "Getting Started Guide",
-  items: ["Step 1", "Step 2", "Step 3"],
-};
-```
-
-### Step 2: Create composition in the appropriate file
-
-```tsx
-// compositions/MarketingCompositions.tsx
-import { Composition, Folder } from "remotion";
-import { MyComponent, MyComponentSchema } from "../MyComponent";
-import { myVideoContent } from "./messages";
-
-export const MarketingCompositions: React.FC = () => (
-  <Folder name="Marketing">
-    <Composition
-      id="my-video"
-      component={MyComponent}
-      durationInFrames={300}
-      fps={30}
-      width={1920}
-      height={1080}
-      schema={MyComponentSchema}
-      defaultProps={myVideoContent}
-    />
-  </Folder>
-);
-```
-
-### Step 3: Export from `compositions/index.tsx`
-
-```tsx
-import { MarketingCompositions } from "./MarketingCompositions";
-
-export const AllCompositions: React.FC = () => (
-  <>
-    <MarketingCompositions />
-    {/* Add more composition groups here */}
-  </>
-);
-```
-
-## Theme System
-
-Centralize design tokens in `theme.ts`:
-
-```typescript
-export const theme = {
-  colors: {
-    brand: {
-      primary: "#9773ff",
-      secondary: "#ff9573",
-    },
-    text: {
-      primary: "#1a1a1a",
-      secondary: "#666666",
-    },
-    surface: {
-      main: "#ffffff",
-      variant: "#f5f5f5",
-    },
-  },
-  typography: {
-    fontFamily: {
-      heading: "Inter",
-      body: "Inter",
-    },
-    fontSize: {
-      sm: 14,
-      md: 16,
-      lg: 24,
-      xl: 32,
-    },
-  },
-  timing: {
-    // Frame-based timing at 60fps
-    fadeIn: 30,      // 0.5s
-    stagger: 10,     // delay between items
-  },
-  chart: {
-    // Chart-specific tokens
-    line: { strokeWidth: 4, tension: 0.3 },
-    animation: {
-      spring: { mass: 1, damping: 18, stiffness: 50 },
-    },
-    compact: { /* smaller variants for dense layouts */ },
-  },
-};
-```
-
-## Animation Patterns
-
-### Spring animations
-
-```typescript
-import { spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { theme } from "./theme";
-
-const MyComponent: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-
-  // Use theme config for consistent animations
-  const scale = spring({
-    frame,
-    fps,
-    config: theme.chart.animation.spring,
-  });
-
-  return <div style={{ transform: `scale(${scale})` }}>Hello</div>;
-};
-```
-
-### Interpolated values
-
-```typescript
-import { interpolate, useCurrentFrame } from "remotion";
-
-const opacity = interpolate(frame, [0, 30], [0, 1], {
-  extrapolateRight: "clamp",
-});
-```
-
-### Staggered animations
-
-```typescript
-const items = ["A", "B", "C"];
-
-items.map((item, i) => {
-  const delay = i * 10; // 10 frames between each
-  const itemOpacity = interpolate(frame - delay, [0, 20], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  return <div style={{ opacity: itemOpacity }}>{item}</div>;
-});
-```
+### Mobile (1080×1226)
+- `ChatSequence-Short-Mobile`
+- `ChatSequence-Long-Mobile`
 
 ## Rendering
 
-### Preview in Studio
 ```bash
+# Preview
 npm run dev
+
+# Render to MP4
+npx remotion render ChatSequence-EnpsTurnover --output=out/video.mp4
+
+# Custom resolution
+npx remotion render ChatSequence-EnpsTurnover --width=3840 --height=2160
 ```
 
-### Render single composition
-```bash
-npx remotion render my-video
+## Adding New Compositions
+
+1. Add message array to `src/compositions/messages.ts`
+2. Add composition in `src/compositions/ChatSequenceCompositions.tsx`:
+
+```typescript
+{createComposition({
+  id: "ChatSequence-MyStory",
+  durationInFrames: 2000,
+  messages: myMessages,
+  ...DESKTOP,
+  backgroundImage: DESKTOP_BG,
+})}
 ```
 
-### Render with options
-```bash
-# Custom output path
-npx remotion render my-video --output=out/my-video.mp4
+## Adding New Charts
 
-# Custom codec
-npx remotion render my-video --codec=h264
-
-# Custom quality (CRF 0-51, lower = better)
-npx remotion render my-video --crf=18
-
-# Scale resolution
-npx remotion render my-video --scale=0.5
-```
-
-### Render all compositions
-```bash
-npx remotion render
-```
-
-## Best Practices
-
-1. **Centralize timing** - Use `theme.timing` constants instead of magic numbers
-2. **Centralize animations** - Use `theme.chart.animation.spring` for consistent spring configs
-3. **Share content** - Put reusable props in `messages.ts` to avoid duplication
-4. **Group compositions** - Use `<Folder>` to organize by category, platform, or project
-5. **Type your props** - Use Zod schemas for type-safe composition props
-6. **Use springs** - Prefer `spring()` over linear interpolation for natural motion
-7. **Use compact/embedded props** - Use `compact` for dense layouts, `embedded` for nested charts
-8. **Test at target FPS** - Always preview at your target frame rate (30 or 60fps)
-
-## Troubleshooting
-
-### Fonts not loading
-Ensure fonts are loaded in `fonts.ts` and files exist in `public/fonts/`.
-
-### Timing issues after FPS change
-All timing values are in frames. Changing FPS (e.g., 30 → 60) requires multiplying delays by 2.
-
-### Animations not syncing
-Components use local `frame` from `useCurrentFrame()`. Use a `delay` prop to offset when animations start.
+1. Create component in `src/ChatSequence/MyChart.tsx`
+2. Add to schema enum in `src/ChatSequence/schema.ts`
+3. Add mapping in `ChatSequence.tsx` `getChartWidget()`
+4. Use: `{ chartType: "my-chart", reasoningSteps: [...] }`
 
 ## Links
 
-- [Remotion Documentation](https://www.remotion.dev/docs/the-fundamentals)
+- [Remotion Docs](https://www.remotion.dev/docs)
 - [Remotion Discord](https://discord.gg/6VzzNDwUwV)
-- [Report Issues](https://github.com/remotion-dev/remotion/issues/new)
-
-## License
-
-Note that for some entities a company license is needed. [Read the terms here](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md).

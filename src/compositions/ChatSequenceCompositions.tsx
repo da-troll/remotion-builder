@@ -6,17 +6,21 @@ import {
   longMessages,
   multiTurnMessages,
   chartMessages,
+  burnoutCapacityMessages,
+  policyImpactMessages,
+  skillsCoverageMessages,
+  managerLoadMessages,
+  reviewsRetentionMessages,
 } from "./messages";
 
-const BRAND_NAME = "Sia";
 const BACKGROUND_COLOR = "#fffcfb";
 
 // Desktop and mobile background images
 const DESKTOP_BG = "simployer-assets/funky-bg.png";
 const MOBILE_BG = "simployer-assets/funky-bg-3-mobile-cropped.png";
 
-// Dimensions
-const DESKTOP = { width: 1920, height: 1080 };
+// Dimensions + defaults
+const DESKTOP = { width: 1920, height: 1080, gradientFade: true };
 const MOBILE = { width: 1080, height: 1226 };
 
 // Helper to create a single composition
@@ -25,6 +29,8 @@ interface CompositionConfig {
   durationInFrames: number;
   messages: ChatMessage[];
   logoPosition?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+  carouselMode?: boolean;
+  gradientFade?: boolean;
   width: number;
   height: number;
   backgroundImage: string;
@@ -35,6 +41,8 @@ const createComposition = ({
   durationInFrames,
   messages,
   logoPosition = "bottom-left",
+  carouselMode = false,
+  gradientFade = false,
   width,
   height,
   backgroundImage,
@@ -49,67 +57,111 @@ const createComposition = ({
     height={height}
     schema={ChatSequenceSchema}
     defaultProps={{
-      brandName: BRAND_NAME,
       backgroundColor: BACKGROUND_COLOR,
       backgroundImage,
       logoPosition,
+      carouselMode,
+      gradientFade,
       messages,
     }}
   />
 );
 
 export const ChatSequenceCompositions: React.FC = () => (
-  <Folder name="ChatSequence">
-    {/* Desktop versions */}
-    <Folder name="Desktop">
-      {createComposition({
-        id: "ChatSequence-Short",
-        durationInFrames: 1900,
-        messages: shortMessages,
-        ...DESKTOP,
-        backgroundImage: DESKTOP_BG,
-      })}
-      {createComposition({
-        id: "ChatSequence-Long",
-        durationInFrames: 2700,
-        messages: longMessages,
-        ...DESKTOP,
-        backgroundImage: DESKTOP_BG,
-      })}
-      {createComposition({
-        id: "ChatSequence-MultiTurn",
-        durationInFrames: 900,
-        messages: multiTurnMessages,
-        logoPosition: "top-right",
-        ...DESKTOP,
-        backgroundImage: DESKTOP_BG,
-      })}
-      {createComposition({
-        id: "ChatSequence-Chart",
-        durationInFrames: 800,
-        messages: chartMessages,
-        logoPosition: "top-right",
-        ...DESKTOP,
-        backgroundImage: DESKTOP_BG,
-      })}
+  <>
+    <Folder name="ChatSequence">
+      {/* Desktop versions */}
+      <Folder name="Desktop">
+        {createComposition({
+          id: "ChatSequence-EnpsTurnover",
+          durationInFrames: 2700,
+          messages: longMessages,
+          ...DESKTOP,
+          backgroundImage: DESKTOP_BG,
+        })}
+        {createComposition({
+          id: "ChatSequence-MultiTurn",
+          durationInFrames: 900,
+          messages: multiTurnMessages,
+          logoPosition: "top-right",
+          ...DESKTOP,
+          backgroundImage: DESKTOP_BG,
+        })}
+        {createComposition({
+          id: "ChatSequence-Chart",
+          durationInFrames: 800,
+          messages: chartMessages,
+          logoPosition: "top-right",
+          ...DESKTOP,
+          backgroundImage: DESKTOP_BG,
+        })}
+        {/* New story compositions */}
+        {createComposition({
+          id: "ChatSequence-BurnoutCapacity",
+          durationInFrames: 2000,
+          messages: burnoutCapacityMessages,
+          ...DESKTOP,
+          backgroundImage: DESKTOP_BG,
+        })}
+        {createComposition({
+          id: "ChatSequence-PolicyImpact",
+          durationInFrames: 2000,
+          messages: policyImpactMessages,
+          ...DESKTOP,
+          backgroundImage: DESKTOP_BG,
+        })}
+        {createComposition({
+          id: "ChatSequence-SkillsCoverage",
+          durationInFrames: 2000,
+          messages: skillsCoverageMessages,
+          ...DESKTOP,
+          backgroundImage: DESKTOP_BG,
+        })}
+        {createComposition({
+          id: "ChatSequence-ManagerLoad",
+          durationInFrames: 2000,
+          messages: managerLoadMessages,
+          ...DESKTOP,
+          backgroundImage: DESKTOP_BG,
+        })}
+        {createComposition({
+          id: "ChatSequence-ReviewsRetention",
+          durationInFrames: 2000,
+          messages: reviewsRetentionMessages,
+          ...DESKTOP,
+          backgroundImage: DESKTOP_BG,
+        })}
+      </Folder>
+
+      {/* Mobile versions */}
+      <Folder name="Mobile">
+        {createComposition({
+          id: "ChatSequence-Short-Mobile",
+          durationInFrames: 1900,
+          messages: shortMessages,
+          ...MOBILE,
+          backgroundImage: MOBILE_BG,
+        })}
+        {createComposition({
+          id: "ChatSequence-Long-Mobile",
+          durationInFrames: 2700,
+          messages: longMessages,
+          ...MOBILE,
+          backgroundImage: MOBILE_BG,
+        })}
+      </Folder>
     </Folder>
 
-    {/* Mobile versions */}
-    <Folder name="Mobile">
+    {/* Experiments folder */}
+    <Folder name="Experiments">
       {createComposition({
-        id: "ChatSequence-Short-Mobile",
-        durationInFrames: 1900,
-        messages: shortMessages,
-        ...MOBILE,
-        backgroundImage: MOBILE_BG,
-      })}
-      {createComposition({
-        id: "ChatSequence-Long-Mobile",
+        id: "Experiment-Long",
         durationInFrames: 2700,
         messages: longMessages,
-        ...MOBILE,
-        backgroundImage: MOBILE_BG,
+        carouselMode: true,
+        ...DESKTOP,
+        backgroundImage: DESKTOP_BG,
       })}
     </Folder>
-  </Folder>
+  </>
 );

@@ -226,16 +226,17 @@ export const EnpsTrendsAndTurnoverCard: React.FC<EnpsTrendsAndTurnoverCardProps>
       {/* Insight text */}
       <div
         style={{
-          fontSize: compact ? 10 : 12,
-          color: theme.colors.text.secondary,
-          lineHeight: 1.5,
+          fontFamily: theme.chart.insight.fontFamily,
+          fontSize: compact ? theme.chart.compact.insight.fontSize : theme.chart.insight.fontSize,
+          color: theme.chart.insight.color,
+          lineHeight: theme.chart.insight.lineHeight,
         }}
       >
-        <span style={{ fontWeight: theme.typography.weight.medium }}>
+        <span style={{ fontWeight: theme.chart.insight.fontWeight }}>
           9–10s dip when leavers spike (Oct–Nov), while 6–7s rise.
         </span>
         <br />
-        <span style={{ fontSize: compact ? 9 : 11, opacity: 0.8 }}>
+        <span style={{ fontSize: compact ? theme.chart.compact.insight.fontSizeSmall : theme.chart.insight.fontSizeSmall, opacity: 0.8 }}>
           Correlation looks strong (illustrative) — worth slicing by team next. Correlation ≠ causation.
         </span>
       </div>
