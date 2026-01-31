@@ -1,0 +1,115 @@
+// src/theme.ts - Simployer Design System Tokens
+
+export const theme = {
+  colors: {
+    brand: {
+      primary: "#9773ff", // color/brand/primary
+      primaryDark: "#2d0c69", // color/brand/primary-dark
+      primaryLight: "#ece8ff", // color/brand/primary-light
+      secondary: "#ff9573", // color/brand/secondary
+      secondaryPurple: "#8955fd", // Former charts.purple (lilac) - preserved for future use
+      quinary: "#ff9ed0", // color/brand/quinary (Pink used in charts)
+    },
+    text: {
+      default: "#16141e", // color/text/default
+      secondary: "#706e78", // color/text/secondary
+      disabled: "#8b8892", // color/text/disabled
+      link: "#3f51b5", // color/text/link
+      inverted: "#ffffff", // color/brand/on-primary
+    },
+    surface: {
+      main: "#ffffff", // color/brand/surface (Widget backgrounds)
+      variant: "#f2f0f7", // color/brand/surface-variant
+      viewport: "#fffcfb", // color/system/viewport (Main background)
+      outline: "#dddbe4", // color/system/outline
+    },
+    // Extracted from "color/chips/*" - essential for Charts/Graphs
+    charts: {
+      purple: "#9773ff", // Now matches brand.primary for consistency
+      pink: "#ff9ed0", // color/chips/blossom
+      green: "#80e4a6", // color/chips/mint
+      orange: "#F2B299", // color/chips/papaya (adjusted)
+      blue: "#2380c5", // color/chips/sky
+      teal: "#0f6f69", // color/chips/teal
+    },
+    status: {
+      success: "#e6f3ed", // color/system/success
+      onSuccess: "#10563a", // color/system/on-success
+      error: "#ffdcd9",
+      onError: "#920d0d",
+    },
+  },
+  typography: {
+    fontFamily: {
+      heading: "Inter", // system/typography/family-heading
+      body: "Inter", // system/typography/family-body
+      display: '"Source Serif 4"', // system/typography/family-display
+    },
+    // Rem values converted to pixel numbers (assuming 16px root)
+    size: {
+      h1: 46, // ~2.9rem
+      h2: 38, // ~2.4rem
+      h3: 30, // ~1.9rem
+      body: 16,
+      small: 13,
+    },
+    weight: {
+      regular: 400,
+      medium: 500,
+      semibold: 600,
+      bold: 700,
+    },
+  },
+  layout: {
+    borderRadius: {
+      card: 16, // size/radius/l (1rem)
+      button: 8, // size/radius/button
+      small: 4,
+      bubble: 20, // Chat bubble corners
+      tail: 4, // Sharp corner on bubble "tail" side
+    },
+    gap: {
+      card: 16, // size/gap/card
+      section: 24,
+    },
+    shadow: {
+      card: "0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04)",
+      elevated: "0 4px 12px rgba(0, 0, 0, 0.08)",
+    },
+  },
+  // Animation timing constants (in frames at 60fps)
+  timing: {
+    // Message delays by category
+    delays: {
+      start: 30, // Before first message appears (0.5s)
+      userToAiText: 90, // After user message, before AI text response (1.5s)
+      userToAiThinking: 30, // After user message, before AI thinking/chart (0.5s - very brief)
+      aiTextToUser: 220, // After AI text, before next user message (3.67s)
+      aiChartToUser: {
+        // After AI chart, before next user message (thinking time + viewing time)
+        base: 140, // Base viewing time after chart appears
+        perThinkingStep: 136, // Frames per thinking step (2.27s each)
+      },
+    },
+    // Thinking animation
+    thinkingDurationPerStep: 136, // Duration of each thinking step (2.27s at 60fps)
+    // Typewriter effect
+    charsPerFrame: 1.125, // Characters revealed per frame
+    // Shimmer animation cycle
+    shimmerCycle: 160, // Frames for one shimmer cycle
+  },
+} as const;
+
+// Helper function to calculate AI chart to user delay
+export const getAiChartToUserDelay = (thinkingSteps: number): number => {
+  return (thinkingSteps * theme.timing.delays.aiChartToUser.perThinkingStep) +
+         theme.timing.delays.aiChartToUser.base;
+};
+
+// Helper to get chart colors as an array for ChartCard
+export const chartColors = Object.values(theme.colors.charts);
+
+// Type exports for TypeScript
+export type Theme = typeof theme;
+export type BrandColors = typeof theme.colors.brand;
+export type ChartColors = typeof theme.colors.charts;
