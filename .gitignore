@@ -24,7 +24,9 @@ out/
 # Remotion cache
 .remotion/
 # Public assets (project-specific, not part of template)
-public/
+# Keep the folder and readme, ignore all other contents
+public/*
+!public/SAVE_ASSETS_HERE.txt
 
 # ======================
 # Environment & Secrets

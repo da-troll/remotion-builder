@@ -43,6 +43,10 @@ export const ChatMessageSchema = z.object({
     "reviews-to-retention-signal",
     "review-gap-by-dept",
     "review-driver-deltas",
+    // Option 6: Sick leave pattern story
+    "sickness-day-pattern",
+    "sickness-overtime-hotspots",
+    "remote-immunity-signal",
   ]).optional(),
 });
 

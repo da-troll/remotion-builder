@@ -23,6 +23,10 @@ import { ManagerLoadInterventionsCard } from "./ManagerLoadInterventionsCard";
 import { ReviewsToRetentionSignalCard } from "./ReviewsToRetentionSignalCard";
 import { ReviewGapByDeptCard } from "./ReviewGapByDeptCard";
 import { ReviewDriverDeltasCard } from "./ReviewDriverDeltasCard";
+// Option 6: Sick leave pattern story
+import { SicknessDayPatternCard } from "./SicknessDayPatternCard";
+import { SicknessOvertimeHotspotsCard } from "./SicknessOvertimeHotspotsCard";
+import { RemoteImmunitySignalCard } from "./RemoteImmunitySignalCard";
 import { theme } from "../theme";
 import type { ChatSequenceProps, ChatMessage } from "./schema";
 
@@ -92,6 +96,17 @@ const getChartWidget = (msg: ChatMessage, layout: "desktop" | "mobile"): React.R
   }
   if (msg.chartType === "review-driver-deltas") {
     return <ReviewDriverDeltasCard layout={layout} />;
+  }
+
+  // Option 6: Sick leave pattern story
+  if (msg.chartType === "sickness-day-pattern") {
+    return <SicknessDayPatternCard layout={layout} />;
+  }
+  if (msg.chartType === "sickness-overtime-hotspots") {
+    return <SicknessOvertimeHotspotsCard layout={layout} />;
+  }
+  if (msg.chartType === "remote-immunity-signal") {
+    return <RemoteImmunitySignalCard layout={layout} />;
   }
 
   return undefined;
