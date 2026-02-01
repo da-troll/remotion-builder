@@ -31,7 +31,7 @@ src/
 │   ├── schema.ts            # Zod schemas
 │   └── *Chart.tsx           # Chart components
 │
-└── ChatDemo/                # Alternative chat format
+└── AthenaInspo/             # Alternative chat format
 ```
 
 ## Available Compositions

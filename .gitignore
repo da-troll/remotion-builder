@@ -64,6 +64,7 @@ Desktop.ini
 # ======================
 # CLAUDE.md contains project-specific context for AI assistants
 CLAUDE.md
+AGENT_INSTRUCTIONS.md
 
 # ======================
 # Logs & Debug

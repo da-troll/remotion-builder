@@ -5,9 +5,9 @@ import { AIMessage } from "./AIMessage";
 import { LoadingCard } from "./LoadingCard";
 import { ActionCard } from "./ActionCard";
 import { ChartCard } from "./ChartCard";
-import type { ChatDemoProps, Message } from "./schema";
+import type { AthenaInspoProps, Message } from "./schema";
 
-export const ChatDemo: React.FC<ChatDemoProps> = ({
+export const AthenaInspo: React.FC<AthenaInspoProps> = ({
   brandName,
   logoSrc,
   backgroundColor,

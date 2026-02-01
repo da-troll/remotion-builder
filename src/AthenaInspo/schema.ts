@@ -56,7 +56,7 @@ export const MessageSchema = z.discriminatedUnion("type", [
 ]);
 
 // Main composition schema
-export const ChatDemoSchema = z.object({
+export const AthenaInspoSchema = z.object({
   // Branding
   brandName: z.string().default("Sia"),
   logoSrc: z.string().default("simployer-assets/Simployer Symbol/Symbol - Purple.svg"), // Path to logo image in public folder
@@ -73,7 +73,7 @@ export const ChatDemoSchema = z.object({
   ),
 });
 
-export type ChatDemoProps = z.infer<typeof ChatDemoSchema>;
+export type AthenaInspoProps = z.infer<typeof AthenaInspoSchema>;
 export type Message = z.infer<typeof MessageSchema>;
 export type UserMessage = z.infer<typeof UserMessageSchema>;
 export type AIMessage = z.infer<typeof AIMessageSchema>;

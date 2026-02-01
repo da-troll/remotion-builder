@@ -1,7 +1,7 @@
-export { ChatDemo } from "./ChatDemo";
-export { ChatDemoSchema } from "./schema";
+export { AthenaInspo } from "./AthenaInspo";
+export { AthenaInspoSchema } from "./schema";
 export type {
-  ChatDemoProps,
+  AthenaInspoProps,
   Message,
   UserMessage,
   AIMessage,
